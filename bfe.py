@@ -3,7 +3,7 @@
 #
 #  bfev1.py
 #  
-#  Copyright 2014 Omar Ernesto Cabrera Rosero <omar@poldrosky-lenovo>
+#  Copyright 2014 Omar Ernesto Cabrera Rosero <omarcabrera@udenar.edu.co>
 #  
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
