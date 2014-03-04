@@ -1,21 +1,32 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+#  bfev1.py
+#  
+#  Copyright 2014 Omar Ernesto Cabrera Rosero <omar@poldrosky-lenovo>
+#  
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+#  
 
 import csv
 import scipy.spatial as ss
 import math
 import time
-import pdb
 import copy
-
-t1 = time.time()
-
-dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
-output = csv.writer(open('output.csv', 'w', newline=''), delimiter='\t')
-
-epsilon = 200
-mu = 3
-delta = 3
-precision = 0.001
 
 class Index(object):
 	def __init__(self,x,y):
@@ -24,6 +35,7 @@ class Index(object):
 		
 	def __str__ (self):
 		return "%s %s" % (self.x, self.y)	
+
 	
 class Point(object):
 	def __init__(self, *args):
@@ -46,6 +58,7 @@ class Point(object):
 	def __str__(self):
 		return "%s %s" % (self.x, self.y)
 	
+
 class Grid(object):
 	def __init__(self,dictPoint):
 		self.dictPoint = dictPoint
@@ -76,6 +89,7 @@ class Grid(object):
 		else:
 			return None
 		
+
 class Disk(object):
 	def __init__(self,center, timestamp,members):
 		self.id = str(center.x)+"-"+str(center.y)
@@ -91,7 +105,7 @@ class Disk(object):
 			b.add(str(i))
 		return "%s %s" % (a,b)
 
-		
+
 class Flock(Disk):
 	def __init__(self, disk, timestamp):
 		self.disk = disk
@@ -110,9 +124,9 @@ class Flock(Disk):
 	def __str__(self):
 		return "%s %s" % (self.disk.id, self.disk.members)	
 			
-		
+
 def calculateDisks(p1, p2):
-	"""Calcula el centro del disco que pasa por dos Puntos"""
+	"""Calculate the center of the disk passing through two points"""
 	r2 = math.pow(epsilon/2,2)
 	disks = []
     
@@ -139,34 +153,28 @@ def calculateDisks(p1, p2):
 	disks.append(Point(h_2, k_2))
     
 	return disks
-  
-next(dataset)
-points={}
 
-for id, timestamp, latitude, longitude in dataset:
-	"""adiciona en una lista los puntos  en un timestamp"""
-	latitude = latitude
-	longitude = longitude
-	if timestamp in points:
-		points[timestamp].append(Point(id,timestamp,latitude,longitude))
-	else:
-		points[timestamp] = []
-		points[timestamp].append(Point(id,timestamp,latitude,longitude))
+
+def pointTimestamp(dataset):
+	"""Receive dataset and return dictonary points per timestamp"""
+	points={}
+	for id, timestamp, latitude, longitude in dataset:
+		latitude = latitude
+		longitude = longitude
+		if timestamp in points:
+			points[timestamp].append(Point(id,timestamp,latitude,longitude))
+		else:
+			points[timestamp] = []
+			points[timestamp].append(Point(id,timestamp,latitude,longitude))
+
+	return points
 	
-timestamps = list(points.keys())
-timestamps.sort()
 
-disks = {}
-maximalDisks = {}
-newId = 0
-key = 1
-
-previousFlocks = []
-
-for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
-	
+def disksTimestamp(points, timestamp):
+	"""Receive points per timestamp and return center disks compare, 
+	nearest tree centers and disks per timestamp with yours members"""
 	dictPoint={}
-	
+	disks = {}
 	for point in points[str(timestamp)]:
 		index = point.getIndex()
 		if str(index) in dictPoint:
@@ -216,16 +224,20 @@ for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
 				else:
 					disks[timestamp] = {}
 					disks[timestamp][pKeyDisk] = Disk(j, timestamp, set(members))
-				
-	if centersDiskCompare == []:
-		continue
 	
+	if centersDiskCompare == []:
+		return 0,0,0
+ 							
 	centersDiskCompare = list(set(centersDiskCompare))
 	treeCenters = ss.cKDTree(centersDiskCompare)
 	disksTime = disks[timestamp]
 	
-	print(timestamp, len(centersDiskCompare))
-	
+	return (centersDiskCompare, treeCenters, disksTime)
+				
+
+def maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID):
+	"""This method return the maximal disks per timestamp"""
+	maximalDisks = {}
 	maximalDisks[timestamp] = {}
 	
 	for i in disksTime:
@@ -260,47 +272,80 @@ for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
 						
 	for d in disksTime:
 		if disksTime[d].valid:
-			disksTime[d].id = newId
+			disksTime[d].id = diskID
 			maximalDisks[timestamp][disksTime[d].id] = disksTime[d]
-			newId += 1
+			diskID += 1
 	
-	#print("Maximal",len(maximalDisks[timestamp]))
+	return (maximalDisks[timestamp], diskID)
+	
+
+def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
+	"""Receive maximal disks, previous flocks, tiemstamp, key Flock 
+	return previos flock and write file with flocks """
 	currentFlocks = []
-	
-	for md in maximalDisks[timestamp]:	
+	for md in maximalDisks:
 		for f in previousFlocks:
-			inter = len(maximalDisks[timestamp][md].members.intersection(f.members))
-			
+			inter = len(maximalDisks[md].members.intersection(f.members))
 			if(inter>=mu):
 				f1 = copy.copy(f)
-				f1.members = maximalDisks[timestamp][md].members.intersection(f1.members)
-				f1.diskFlock.append(maximalDisks[timestamp][md].id)
+				f1.members = maximalDisks[md].members.intersection(f1.members)
+				f1.diskFlock.append(maximalDisks[md].id)
 				f1.end = timestamp
 												
 				if f1.getDuration() == delta:
 					b = list(f1.members)
 					b.sort()
-					output.writerow([key, f1.start, f1.end, b])
-					key += 1
+					output.writerow([keyFlock, f1.start, f1.end, b])
+					keyFlock += 1
 					f1.start = timestamp - delta + 1 
 					
 				if f1.start > timestamp  - delta:
 					currentFlocks.append(f1)
 										
-		currentFlocks.append(Flock(maximalDisks[timestamp][md],timestamp))
+		currentFlocks.append(Flock(maximalDisks[md],timestamp))
 				
 	previousFlocks = currentFlocks
+	return (previousFlocks, keyFlock)
 	
+	
+def main():
+	t1 = time.time()
+	global epsilon
+	global mu
+	global delta
+	global precision
+	global output
+	
+	epsilon = 200
+	mu = 3
+	delta = 3
+	precision = 0.001
 
-#for timestamp in range(len(timestamps)):
-#	if not timestamp in maximalDisks:
-#		continue
-#	print(len(maximalDisks[timestamp]))
-	#for j in maximalDisks[timestamp]:
-		#print(j)
-		#output.writerow([maximalDisks[timestamp][j].id,maximalDisks[timestamp][j]])
+	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
+	output = csv.writer(open('output.csv', 'w', newline=''), delimiter='\t')
 
+	next(dataset)
+		
+	points = pointTimestamp(dataset)
+	
+	timestamps = list(points.keys())
+	timestamps.sort()
+	
+	previousFlocks = []
+	keyFlock = 1
+	diskID = 1
+		
+	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
+		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)	
+		if centersDiskCompare == 0:
+			continue
+		#print(timestamp, len(centersDiskCompare))
+		maximalDisks, diskID = maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
+		#print("Maximal",len(maximalDisks))
+		previousFlocks, keyFlock = flocks(maximalDisks, previousFlocks, timestamp, keyFlock)
+	t2 = time.time()-t1
+	print("\nTime: ",t2)
+	return 0
 
-t2 = time.time()-t1
-print("\nTiempo",t2)	
-
+if __name__ == '__main__':
+	main()
