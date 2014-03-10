@@ -28,6 +28,12 @@ import math
 import time
 import copy
 
+global epsilon
+global mu
+global delta
+global precision
+global output
+
 class Index(object):
 	def __init__(self,x,y):
 		self.x = x
@@ -310,12 +316,6 @@ def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
 	
 def main():
 	t1 = time.time()
-	global epsilon
-	global mu
-	global delta
-	global precision
-	global output
-	
 	epsilon = 200
 	mu = 3
 	delta = 3
