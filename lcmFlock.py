@@ -25,6 +25,7 @@
 import bfe
 import time
 import csv
+import os
 
 def getTransactions(points, timestamp, maximalDisks):
 	for maximal in maximalDisks:
@@ -46,7 +47,7 @@ def main():
 	bfe.precision = 0.001
 
 	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
-	output = open('salida.dat','w')
+	output = open('output.dat','w')
 
 	next(dataset)
 		
@@ -60,6 +61,7 @@ def main():
 	diskID = 1
 	
 	traj = {}
+	totalMaximalDisks = {}
 	
 	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
 		centersDiskCompare, treeCenters, disksTime = bfe.disksTimestamp(points, timestamp)	
@@ -67,6 +69,7 @@ def main():
 			continue
 		#print(timestamp, len(centersDiskCompare))
 		maximalDisks, diskID = bfe.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
+		totalMaximalDisks.update(maximalDisks)
 		
 		getTransactions(points, timestamp, maximalDisks)
 	
@@ -74,7 +77,9 @@ def main():
 		if len(traj[i])>1:
 			output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
 	
-	output.close()	
+	output.close()
+	os.system("./fim_maximal output.dat 3 output.mfi")
+	output1 = open('output.mfi','r')	
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)

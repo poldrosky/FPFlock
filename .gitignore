@@ -34,3 +34,12 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+# Output
+output.*
+flocksBfe.csv
+flocksLcm.csv
+
+# Temp
+*.*~
+

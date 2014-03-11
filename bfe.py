@@ -328,7 +328,7 @@ def main():
 	precision = 0.001
 
 	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
-	output = csv.writer(open('output.csv', 'w', newline=''), delimiter='\t')
+	output = csv.writer(open('flocksBfe.csv', 'w', newline=''), delimiter='\t')
 
 	next(dataset)
 		
