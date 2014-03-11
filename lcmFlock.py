@@ -21,6 +21,7 @@
 #  MA 02110-1301, USA.
 #  
 #  
+
 import bfe
 import time
 import csv
@@ -35,10 +36,6 @@ def getTransactions(points, timestamp, maximalDisks):
 				traj[member].append(maximalDisks[maximal].id)
 	return traj
 	
-	
-
-	
-
 def main():
 	t1 = time.time()
 	global traj
@@ -49,7 +46,7 @@ def main():
 	bfe.precision = 0.001
 
 	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
-	output = csv.writer(open('salida.csv', 'w', newline=''), delimiter='\t')
+	output = open('salida.dat','w')
 
 	next(dataset)
 		
@@ -75,7 +72,9 @@ def main():
 	
 	for i in traj:
 		if len(traj[i])>1:
-			output.writerow([str(traj[i]).replace(',','').replace('[','').replace(']','')])	
+			output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
+	
+	output.close()	
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)

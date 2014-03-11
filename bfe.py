@@ -316,6 +316,12 @@ def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
 	
 def main():
 	t1 = time.time()
+	global epsilon
+	global mu
+	global delta
+	global precision
+	global output
+	
 	epsilon = 200
 	mu = 3
 	delta = 3
