@@ -36,7 +36,29 @@ def getTransactions(points, timestamp, maximalDisks):
 			else:
 				traj[member].append(maximalDisks[maximal].id)
 	return traj
-	
+
+def flocks(output1, totalMaximalDisks, keyFlock):
+	output2 = csv.writer(open('flocksLcm.csv', 'w', newline=''), delimiter='\t')
+	lines = output1.readlines()
+	for line in lines:
+		array = line.split(' ')
+		array.sort()
+		if len(array) <= bfe.delta:
+			continue
+		start = totalMaximalDisks[int(str(array[1]))].timestamp
+		for element in range(2,len(array)):
+			end = totalMaximalDisks[int(str(array[element]))].timestamp
+			if(end == start + 1 or end == aux +1):
+				aux = end
+				b= list(totalMaximalDisks[int(str(array[element]))].members)
+				b.sort()
+				if end-start >= bfe.delta - 1:
+					output2.writerow([keyFlock, start, end, b])
+					keyFlock += 1
+			
+			else: 
+				start = end
+			
 def main():
 	t1 = time.time()
 	global traj
@@ -74,12 +96,16 @@ def main():
 		getTransactions(points, timestamp, maximalDisks)
 	
 	for i in traj:
-		if len(traj[i])>1:
-			output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
+		if len(traj[i]) == 1:
+			continue
+		output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
 	
 	output.close()
-	os.system("./fim_maximal output.dat 3 output.mfi")
+	os.system("./fim_maximal output.dat " + str(bfe.mu) + " output.mfi")
 	output1 = open('output.mfi','r')	
+	
+	keyFlock = 1
+	flocks(output1, totalMaximalDisks, keyFlock)
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)
