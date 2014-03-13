@@ -41,34 +41,48 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 	output2 = csv.writer(open('flocksLcm.csv', 'w', newline=''), delimiter='\t')
 	lines = output1.readlines()
 	for line in lines:
-		array = line.split(' ')
+		lineSplit = line.split(' ')
+		array = list(map(int,lineSplit[:-1]))
 		array.sort()
-		if len(array) <= bfe.delta:
+		if len(array) < bfe.delta:
 			continue
-		start = totalMaximalDisks[int(str(array[1]))].timestamp
-		for element in range(2,len(array)):
-			end = totalMaximalDisks[int(str(array[element]))].timestamp
-			if(end == start + 1 or end == aux +1):
-				aux = end
-				b= list(totalMaximalDisks[int(str(array[element]))].members)
+		frecuency = int(lineSplit[-1].replace('(','').replace(')',''))
+		members = totalMaximalDisks[int(str(array[0]))].members
+		begin = totalMaximalDisks[int(str(array[0]))].timestamp
+		end = begin
+		for element in range(1,len(array)):
+			now = totalMaximalDisks[int(str(array[element]))].timestamp
+			if(now == end + 1 or now == end):
+				if(now == end + 1):
+					members = members.intersection(totalMaximalDisks[int(str(array[element]))].members)
+				end = now
+				
+			elif end-begin >= bfe.delta - 1:
+				b = list(members)
 				b.sort()
-				if end-start >= bfe.delta - 1:
-					output2.writerow([keyFlock, start, end, b])
-					keyFlock += 1
-			
+				output2.writerow([keyFlock, begin, end, b])
+				keyFlock += 1
+				begin = end = now
+				
 			else: 
-				start = end
+				begin = end = now
+				
+		if end-begin >= bfe.delta - 1:
+			b = list(members)
+			b.sort()
+			output2.writerow([keyFlock, begin, end, b])
+			keyFlock += 1
 			
 def main():
 	t1 = time.time()
 	global traj
 	
-	bfe.epsilon = 200
-	bfe.mu = 3
+	bfe.epsilon = 50
+	bfe.mu = 5
 	bfe.delta = 3
 	bfe.precision = 0.001
 
-	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
+	dataset = csv.reader(open('SJ25K60.txt', 'r'),delimiter='\t')
 	output = open('output.dat','w')
 
 	next(dataset)

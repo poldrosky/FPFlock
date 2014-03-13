@@ -322,12 +322,12 @@ def main():
 	global precision
 	global output
 	
-	epsilon = 200
-	mu = 3
+	epsilon = 300
+	mu = 5
 	delta = 3
 	precision = 0.001
 
-	dataset = csv.reader(open('Oldenburg.csv', 'r'),delimiter='\t')
+	dataset = csv.reader(open('SJ25K60.txt', 'r'),delimiter='\t')
 	output = csv.writer(open('flocksBfe.csv', 'w', newline=''), delimiter='\t')
 
 	next(dataset)
