@@ -77,12 +77,12 @@ def main():
 	t1 = time.time()
 	global traj
 	
-	bfe.epsilon = 50
-	bfe.mu = 5
+	bfe.epsilon = 40
+	bfe.mu = 3
 	bfe.delta = 3
 	bfe.precision = 0.001
 
-	dataset = csv.reader(open('SJ25K60.txt', 'r'),delimiter='\t')
+	dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
 	output = open('output.dat','w')
 
 	next(dataset)

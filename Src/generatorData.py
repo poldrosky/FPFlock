@@ -30,49 +30,76 @@ epsilon1 = 200
 epsilon2 = 50
 timestamp = 100
 points = 100
+flocks = 100
 output = csv.writer(open('syntheticdata.csv', 'w', newline=''), delimiter='\t')
 
+random.seed(666)
+
 def matrix():
-	table= [ [ 0 for i in range(100) ] for j in range(100) ]
 	coordinate = []
 	x = 100
 	y = 100
 	for i in range(35):
 		for j in range(35):
-			table[i][j]= [x,y]
+			coordinate.append([x,y])
 			x += epsilon1
 		x = 100
 		y += epsilon1
 	
-	for i in range(35):
-		for j in range(35):
-			coordinate.append(table[i][j])
-			
 	return coordinate
 	
-def randomPoints(cantidad, min, max):
-    numeros = set()
- 
-    if max < min:
-        min, max = max, min
- 
-    if cantidad > (max-min):
-        cantidad = max - min
- 
-    while len(numeros) < cantidad:
-        numeros.add(random.randint(min, max))
+def randomPoints(amount, min, max):
+	points = []
 	
-	return numeros
+	while len(points) < amount:
+		point = random.randint(min, max)
+		
+		if not point in points:
+			points.append(point)
+		
+	return points
 
-print(randomPoints(10, 1, 10))			
 	
 for time in range(timestamp):
-	for i, j in zip(randomPoints(1000,1,1000), matrix()):
-		output.writerow([i,time,j])
-		
+	points = randomPoints(1000, 1, 1000)
+	grid = matrix()	
+	for i in range(len(points)):
+		output.writerow([points[i], time, grid[i][0], grid[i][1]])
 
 
-	
-	
+
+dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
 
 
+points = randomPoints(flocks, 1, 1000)
+
+times = []
+
+while len(times) < flocks:
+	a = random.randint(1, 100)
+	b = random.randint(1, 100)
+	if a < b and (b-a)>=3:
+		times.append([a,b])
+	elif a>b and (a-b)>=3:
+		times.append([b,a])
+
+aux = 1001
+vector=[]
+for time, points in zip(times,points):
+	vector.append([time[0], time[1],points])
+
+print(len(vector))
+print(vector)
+
+for i in vector:
+	for j in range(i[0],i[1]+1):
+		key = aux
+		for id, time, x, y in dataset:
+			if(i[2] == int(id) and j == int(time)):
+				for au in range(3):
+					output.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
+					key += 1
+		dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
+		key += 1
+	aux = key + 1			
+				

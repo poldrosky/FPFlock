@@ -165,8 +165,6 @@ def pointTimestamp(dataset):
 	"""Receive dataset and return dictonary points per timestamp"""
 	points={}
 	for id, timestamp, latitude, longitude in dataset:
-		latitude = latitude
-		longitude = longitude
 		if timestamp in points:
 			points[timestamp].append(Point(id,timestamp,latitude,longitude))
 		else:
@@ -322,12 +320,12 @@ def main():
 	global precision
 	global output
 	
-	epsilon = 300
-	mu = 5
+	epsilon = 50
+	mu = 3
 	delta = 3
 	precision = 0.001
 
-	dataset = csv.reader(open('SJ25K60.txt', 'r'),delimiter='\t')
+	dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
 	output = csv.writer(open('flocksBfe.csv', 'w', newline=''), delimiter='\t')
 
 	next(dataset)
