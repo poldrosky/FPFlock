@@ -37,8 +37,7 @@ nosetests.xml
 
 # Output
 output.*
-flocksBfe.csv
-flocksLcm.csv
+*.csv
 
 # Temp
 *.*~

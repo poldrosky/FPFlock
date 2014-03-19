@@ -26,6 +26,7 @@ import bfe
 import time
 import csv
 import os
+import psycopg2
 
 def getTransactions(points, timestamp, maximalDisks):
 	for maximal in maximalDisks:
@@ -36,9 +37,50 @@ def getTransactions(points, timestamp, maximalDisks):
 			else:
 				traj[member].append(maximalDisks[maximal].id)
 	return traj
+	
+class DBConnector():
+	def __init__(self):
+		dbname = 'trajectories'
+		user = 'omar'
+		password = '123'
+		host = 'localhost'
+		port = '5432'
+		try:
+			self.conn = psycopg2.connect("dbname='{0}' user='{1}' password='{2}' host='{3}' port='{4}'".format(dbname, user, password, host, port))
+			print("Conection OK")
+		except:
+			print("No conection")
+			
+	def resetTable(self,table):
+		self.table = table
+		cur = self.conn.cursor()
+		drop = """DROP TABLE IF EXISTS
+				{0};""".format(table)
+		create = """CREATE TABLE
+					{0} (fid Integer,  started integer,  ended integer,   members character varying); """.format(table)
+		try:
+			cur.execute(drop)
+			cur.execute(create)
+			self.conn.commit()
+		except:
+			print("hubo un fallo")
+			
+	def copyToTable(self,table, stdin):
+		self.table = table
+		self.stdin = stdin
+		cur = self.conn.cursor()
+		try:
+			cur.copy_from(stdin, table)
+			self.conn.commit()
+		except:
+			print("Error al copiar")
+		
+	
 
 def flocks(output1, totalMaximalDisks, keyFlock):
 	output2 = csv.writer(open('flocksLcm.csv', 'w', newline=''), delimiter='\t')
+	db = DBConnector()
+	db.resetTable('lcmflock')
 	lines = output1.readlines()
 	for line in lines:
 		lineSplit = line.split(' ')
@@ -60,7 +102,9 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 			elif end-begin >= bfe.delta - 1:
 				b = list(members)
 				b.sort()
+				stdin = (keyFlock, begin, end, b)
 				output2.writerow([keyFlock, begin, end, b])
+				#db.copyToTable('lcmflock',stdin)
 				keyFlock += 1
 				begin = end = now
 				
@@ -70,7 +114,9 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 		if end-begin >= bfe.delta - 1:
 			b = list(members)
 			b.sort()
+			stdin = (keyFlock, begin, end, b)
 			output2.writerow([keyFlock, begin, end, b])
+			#db.copyToTable('lcmflock',stdin)
 			keyFlock += 1
 			
 def main():
@@ -81,8 +127,7 @@ def main():
 	bfe.mu = 3
 	bfe.delta = 3
 	bfe.precision = 0.001
-
-	dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
+	dataset = csv.reader(open('Datasets/SJ1000T100t100f.csv', 'r'),delimiter='\t')
 	output = open('output.dat','w')
 
 	next(dataset)
@@ -115,7 +160,7 @@ def main():
 		output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
 	
 	output.close()
-	os.system("./fim_maximal output.dat " + str(bfe.mu) + " output.mfi")
+	os.system("./fim_closed output.dat " + str(bfe.mu) + " output.mfi")
 	output1 = open('output.mfi','r')	
 	
 	keyFlock = 1

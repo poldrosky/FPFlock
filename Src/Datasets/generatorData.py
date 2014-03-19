@@ -25,13 +25,15 @@
 import csv
 import scipy.spatial as ss
 import random
+import math
 
 epsilon1 = 200
-epsilon2 = 50
 timestamp = 100
-points = 100
-flocks = 100
-output = csv.writer(open('syntheticdata.csv', 'w', newline=''), delimiter='\t')
+pointsTimestamp = 15000
+m = math.ceil(math.sqrt(pointsTimestamp))
+flocks = 500
+output = csv.writer(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'w', newline=''), delimiter='\t')
+print('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
 
 random.seed(666)
 
@@ -39,8 +41,8 @@ def matrix():
 	coordinate = []
 	x = 100
 	y = 100
-	for i in range(35):
-		for j in range(35):
+	for i in range(m):
+		for j in range(m):
 			coordinate.append([x,y])
 			x += epsilon1
 		x = 100
@@ -59,31 +61,30 @@ def randomPoints(amount, min, max):
 		
 	return points
 
-	
+
 for time in range(timestamp):
-	points = randomPoints(1000, 1, 1000)
+	points = randomPoints(pointsTimestamp, 1, pointsTimestamp)
 	grid = matrix()	
 	for i in range(len(points)):
 		output.writerow([points[i], time, grid[i][0], grid[i][1]])
 
 
+dataset = csv.reader(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'r'),delimiter='\t')
 
-dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
 
-
-points = randomPoints(flocks, 1, 1000)
+points = randomPoints(flocks, 1, pointsTimestamp)
 
 times = []
 
 while len(times) < flocks:
 	a = random.randint(1, 100)
 	b = random.randint(1, 100)
-	if a < b and (b-a)>=3:
+	if a < b and (b-a)>=3 and (b-a)<=20:
 		times.append([a,b])
-	elif a>b and (a-b)>=3:
+	elif a>b and (a-b)>=3 and (b-a)<=20:
 		times.append([b,a])
 
-aux = 1001
+aux = pointsTimestamp + 1
 vector=[]
 for time, points in zip(times,points):
 	vector.append([time[0], time[1],points])
@@ -99,7 +100,7 @@ for i in vector:
 				for au in range(3):
 					output.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
 					key += 1
-		dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
+		dataset = csv.reader(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'r'),delimiter='\t')
 		key += 1
 	aux = key + 1			
 				
