@@ -27,12 +27,14 @@ import scipy.spatial as ss
 import math
 import time
 import copy
+import pdbc
+import io
 
 global epsilon
 global mu
 global delta
 global precision
-global output
+global stdin
 
 class Index(object):
 	def __init__(self,x,y):
@@ -283,7 +285,7 @@ def maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, 
 	return (maximalDisks[timestamp], diskID)
 	
 
-def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
+def flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin):
 	"""Receive maximal disks, previous flocks, tiemstamp, key Flock 
 	return previos flock and write file with flocks """
 	currentFlocks = []
@@ -299,7 +301,7 @@ def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
 				if f1.getDuration() == delta:
 					b = list(f1.members)
 					b.sort()
-					output.writerow([keyFlock, f1.start, f1.end, b])
+					stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, f1.start, f1.end, b))
 					keyFlock += 1
 					f1.start = timestamp - delta + 1 
 					
@@ -309,7 +311,7 @@ def flocks(maximalDisks, previousFlocks, timestamp, keyFlock):
 		currentFlocks.append(Flock(maximalDisks[md],timestamp))
 				
 	previousFlocks = currentFlocks
-	return (previousFlocks, keyFlock)
+	return (previousFlocks, keyFlock, stdin)
 	
 	
 def main():
@@ -318,16 +320,17 @@ def main():
 	global mu
 	global delta
 	global precision
-	global output
-	
-	epsilon = 50
+	global stdin
+		
+	epsilon = 40
 	mu = 3
 	delta = 3
 	precision = 0.001
 
-	dataset = csv.reader(open('syntheticdata.csv', 'r'),delimiter='\t')
-	output = csv.writer(open('flocksBfe.csv', 'w', newline=''), delimiter='\t')
-
+	dataset = csv.reader(open('SD1300T100t.csv', 'r'),delimiter='\t')
+	db = pdbc.DBConnector()
+	db.resetTable('flockBFE')
+	
 	next(dataset)
 		
 	points = pointTimestamp(dataset)
@@ -338,6 +341,7 @@ def main():
 	previousFlocks = []
 	keyFlock = 1
 	diskID = 1
+	stdin = []
 		
 	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
 		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)	
@@ -346,7 +350,11 @@ def main():
 		#print(timestamp, len(centersDiskCompare))
 		maximalDisks, diskID = maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
 		#print("Maximal",len(maximalDisks))
-		previousFlocks, keyFlock = flocks(maximalDisks, previousFlocks, timestamp, keyFlock)
+		previousFlocks, keyFlock, stdin = flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
+	
+	stdin = '\n'.join(stdin)
+	db.copyToTable('flockBFE',io.StringIO(stdin))
+	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)
 	return 0

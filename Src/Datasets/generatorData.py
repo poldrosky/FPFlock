@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  bfev1.py
+#  generatorData.py
 #  
 #  Copyright 2014 Omar Ernesto Cabrera Rosero <omarcabrera@udenar.edu.co>
 #  
@@ -27,13 +27,19 @@ import scipy.spatial as ss
 import random
 import math
 import sys
+import os
 
 epsilon1 = 200
-timestamp = 100
 pointsTimestamp = int(sys.argv[1]) 
 m = math.ceil(math.sqrt(pointsTimestamp))
 flocks = int(sys.argv[2])
-output = csv.writer(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'w', newline=''), delimiter='\t')
+timestamp = 10
+
+os.system('rm '+ 'SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
+
+output = open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'w', newline='')
+writer = csv.writer(output, delimiter='\t')
+
 print('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
 
 random.seed(666)
@@ -59,7 +65,6 @@ def randomPoints(amount, min, max):
 		
 		if not point in points:
 			points.append(point)
-		
 	return points
 
 
@@ -67,11 +72,16 @@ for time in range(timestamp):
 	points = randomPoints(pointsTimestamp, 1, pointsTimestamp)
 	grid = matrix()	
 	for i in range(len(points)):
-		output.writerow([points[i], time, grid[i][0], grid[i][1]])
+		writer.writerow([points[i], time, grid[i][0], grid[i][1]])
+
+output.close()
+os.system('cp '+'SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv' + ' aux.csv') 
+
+output = open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'a', newline='')
+writer = csv.writer(output, delimiter='\t')
 
 
-dataset = csv.reader(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'r'),delimiter='\t')
-
+dataset = csv.reader(open('aux.csv', 'r'),delimiter='\t')
 
 points = randomPoints(flocks, 1, pointsTimestamp)
 
@@ -86,22 +96,32 @@ while len(times) < flocks:
 		times.append([b,a])
 
 aux = pointsTimestamp + 1
+
+fid = 1
 vector=[]
-for time, points in zip(times,points):
-	vector.append([time[0], time[1],points])
 
-print(len(vector))
-print(vector)
+c = {}
 
+for time, point in zip(times,points):
+	vector.append([fid,time[0], time[1],point])
+	c[fid] = set() 
+	c[fid].add(point)
+	fid += 1
+
+
+	
 for i in vector:
-	for j in range(i[0],i[1]+1):
+	for j in range(i[1],i[2]+1):
 		key = aux
 		for id, time, x, y in dataset:
 			if(i[2] == int(id) and j == int(time)):
 				for au in range(3):
-					output.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
-					key += 1
-		dataset = csv.reader(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'r'),delimiter='\t')
-		key += 1
+					c[i[0]].add(key)					
+					writer.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
+					key += 1					
+		dataset = csv.reader(open('aux.csv', 'r'),delimiter='\t')
+		key += 1		
 	aux = key + 1			
-				
+
+for i in vector:
+	print(i[0], i[1], i[2], c[i[0]])			
