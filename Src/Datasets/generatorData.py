@@ -26,12 +26,13 @@ import csv
 import scipy.spatial as ss
 import random
 import math
+import sys
 
 epsilon1 = 200
 timestamp = 100
-pointsTimestamp = 15000
+pointsTimestamp = int(sys.argv[1]) 
 m = math.ceil(math.sqrt(pointsTimestamp))
-flocks = 500
+flocks = int(sys.argv[2])
 output = csv.writer(open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'w', newline=''), delimiter='\t')
 print('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
 
