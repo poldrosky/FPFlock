@@ -86,13 +86,11 @@ def main():
 	bfe.mu = 3
 	bfe.delta = 3
 	bfe.precision = 0.001
-	file = 'SD1300T100t.csv'
+	filename = 'SD1300T100t.csv'
 	
-	dataset = csv.reader(open(file, 'r'),delimiter='\t')
+	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
 	output = open('output.dat','w')
-	db = pdbc.DBConnector()
-	db.resetTable('flock{0}lcm'.format(file))
-	
+		
 	next(dataset)
 		
 	points = bfe.pointTimestamp(dataset)
@@ -131,8 +129,11 @@ def main():
 	stdin = flocks(output1, totalMaximalDisks, keyFlock)
 	
 	
+	table = ('flock{0}lcm'.format(filename)).replace('.csv','')
 	stdin = '\n'.join(stdin)
-	db.copyToTable('flock{0}lcm'.format(file),io.StringIO(stdin))
+	db = pdbc.DBConnector()
+	db.resetTable(table.format(filename))
+	db.copyToTable(table,io.StringIO(stdin))
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)

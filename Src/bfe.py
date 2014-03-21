@@ -287,7 +287,7 @@ def maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, 
 
 def flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin):
 	"""Receive maximal disks, previous flocks, tiemstamp, key Flock 
-	return previos flock and write file with flocks """
+	return previos flock and write filename with flocks """
 	currentFlocks = []
 	for md in maximalDisks:
 		for f in previousFlocks:
@@ -326,12 +326,10 @@ def main():
 	mu = 3
 	delta = 3
 	precision = 0.001
-	file = 'SD1300T100t.csv'
+	filename = 'SD1300T100t.csv'
 	
-	dataset = csv.reader(open(file, 'r'),delimiter='\t')
-	db = pdbc.DBConnector()
-	db.resetTable('flock{0}bfe'.format(file))
-	
+	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
+		
 	next(dataset)
 		
 	points = pointTimestamp(dataset)
@@ -353,8 +351,11 @@ def main():
 		#print("Maximal",len(maximalDisks))
 		previousFlocks, keyFlock, stdin = flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
 	
+	table = ('flock{0}bfe'.format(filename)).replace('.csv','')
 	stdin = '\n'.join(stdin)
-	db.copyToTable('flock{0}bfe'.format(file),io.StringIO(stdin))
+	db = pdbc.DBConnector()
+	db.resetTable(table.format(filename))
+	db.copyToTable(table,io.StringIO(stdin))
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)
