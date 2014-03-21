@@ -326,10 +326,11 @@ def main():
 	mu = 3
 	delta = 3
 	precision = 0.001
-
-	dataset = csv.reader(open('SD1300T100t.csv', 'r'),delimiter='\t')
+	file = 'SD1300T100t.csv'
+	
+	dataset = csv.reader(open(file, 'r'),delimiter='\t')
 	db = pdbc.DBConnector()
-	db.resetTable('flockBFE')
+	db.resetTable('flock{0}bfe'.format(file))
 	
 	next(dataset)
 		
@@ -353,7 +354,7 @@ def main():
 		previousFlocks, keyFlock, stdin = flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
 	
 	stdin = '\n'.join(stdin)
-	db.copyToTable('flockBFE',io.StringIO(stdin))
+	db.copyToTable('flock{0}bfe'.format(file),io.StringIO(stdin))
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)

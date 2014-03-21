@@ -22,8 +22,8 @@
 #  
 #  
 
+import pdbc
 import csv
-import scipy.spatial as ss
 import random
 import math
 import sys
@@ -33,14 +33,16 @@ epsilon1 = 200
 pointsTimestamp = int(sys.argv[1]) 
 m = math.ceil(math.sqrt(pointsTimestamp))
 flocks = int(sys.argv[2])
-timestamp = 10
+timestamp = 100
 
-os.system('rm '+ 'SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
+file = 'SJ{0}T{1}t{2}f.csv'.format(pointsTimestamp,timestamp,flocks)
 
-output = open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'w', newline='')
+os.system('rm {0}'.format(file))
+
+output = open(file, 'w', newline='')
 writer = csv.writer(output, delimiter='\t')
 
-print('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv')
+print(file)
 
 random.seed(666)
 
@@ -74,10 +76,11 @@ for time in range(timestamp):
 	for i in range(len(points)):
 		writer.writerow([points[i], time, grid[i][0], grid[i][1]])
 
+dataset = output
 output.close()
-os.system('cp '+'SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv' + ' aux.csv') 
+os.system('cp {0} aux.csv'.format(file)) 
 
-output = open('SJ'+str(pointsTimestamp)+'T'+'100t'+str(flocks)+'f'+'.csv', 'a', newline='')
+output = open(file, 'a', newline='')
 writer = csv.writer(output, delimiter='\t')
 
 
@@ -103,25 +106,34 @@ vector=[]
 c = {}
 
 for time, point in zip(times,points):
-	vector.append([fid,time[0], time[1],point])
-	c[fid] = set() 
-	c[fid].add(point)
-	fid += 1
+	vector.append([time[0], time[1],point])
+	c[point] = set()
+	c[point].add(point)
 
+aux = pointsTimestamp + 1
 
-	
 for i in vector:
-	for j in range(i[1],i[2]+1):
+	for j in range(i[0],i[1]+1):
 		key = aux
 		for id, time, x, y in dataset:
 			if(i[2] == int(id) and j == int(time)):
 				for au in range(3):
-					c[i[0]].add(key)					
+					c[i[2]].add(key)					
 					writer.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
-					key += 1					
+					key += 1
 		dataset = csv.reader(open('aux.csv', 'r'),delimiter='\t')
-		key += 1		
-	aux = key + 1			
+	aux = key			
+
+stdin = []
 
 for i in vector:
-	print(i[0], i[1], i[2], c[i[0]])			
+	b = list(c[i[2]])			
+	b.sort()
+	stdin.append('{0}\t{1}\t{2}\t{3}'.format(fid, i[0], i[1], b))
+	fid += 1
+
+db = pdbc.DBConnector()
+db.resetTable('flock{0}real'.format(file))
+stdin = '\n'.join(stdin)
+#print(stdin)
+db.copyToTable('flock{0}real'.format(file),io.StringIO(stdin))

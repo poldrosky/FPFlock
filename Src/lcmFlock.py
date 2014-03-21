@@ -41,8 +41,6 @@ def getTransactions(points, timestamp, maximalDisks):
 	
 
 def flocks(output1, totalMaximalDisks, keyFlock):
-	db = pdbc.DBConnector()
-	db.resetTable('flockLCM')
 	stdin = []
 	lines = output1.readlines()
 	for line in lines:
@@ -78,10 +76,8 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 			stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, begin, end, b))
 			keyFlock += 1
 	
-	stdin = '\n'.join(stdin)
-	db.copyToTable('flockLCM',io.StringIO(stdin))
-	
-		
+	return stdin
+			
 def main():
 	t1 = time.time()
 	global traj
@@ -90,9 +86,13 @@ def main():
 	bfe.mu = 3
 	bfe.delta = 3
 	bfe.precision = 0.001
-	dataset = csv.reader(open('SD1300T100t.csv', 'r'),delimiter='\t')
+	file = 'SD1300T100t.csv'
+	
+	dataset = csv.reader(open(file, 'r'),delimiter='\t')
 	output = open('output.dat','w')
-
+	db = pdbc.DBConnector()
+	db.resetTable('flock{0}lcm'.format(file))
+	
 	next(dataset)
 		
 	points = bfe.pointTimestamp(dataset)
@@ -127,7 +127,11 @@ def main():
 	output1 = open('output.mfi','r')	
 	
 	keyFlock = 1
-	flocks(output1, totalMaximalDisks, keyFlock)
+	stdin = flocks(output1, totalMaximalDisks, keyFlock)
+	
+	
+	stdin = '\n'.join(stdin)
+	db.copyToTable('flock{0}lcm'.format(file),io.StringIO(stdin))
 	
 	t2 = time.time()-t1
 	print("\nTime: ",t2)
