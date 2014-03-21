@@ -28,6 +28,7 @@ import random
 import math
 import sys
 import os
+import io
 
 epsilon1 = 200
 pointsTimestamp = int(sys.argv[1]) 
@@ -35,14 +36,14 @@ m = math.ceil(math.sqrt(pointsTimestamp))
 flocks = int(sys.argv[2])
 timestamp = 100
 
-file = 'SJ{0}T{1}t{2}f.csv'.format(pointsTimestamp,timestamp,flocks)
+filename = 'SJ{0}T{1}t{2}f.csv'.format(pointsTimestamp,timestamp,flocks)
 
-os.system('rm {0}'.format(file))
+os.system('rm {0}'.format(filename))
 
-output = open(file, 'w', newline='')
+output = open(filename, 'w', newline='')
 writer = csv.writer(output, delimiter='\t')
 
-print(file)
+print(filename)
 
 random.seed(666)
 
@@ -78,9 +79,9 @@ for time in range(timestamp):
 
 dataset = output
 output.close()
-os.system('cp {0} aux.csv'.format(file)) 
+os.system('cp {0} aux.csv'.format(filename)) 
 
-output = open(file, 'a', newline='')
+output = open(filename, 'a', newline='')
 writer = csv.writer(output, delimiter='\t')
 
 
@@ -132,8 +133,10 @@ for i in vector:
 	stdin.append('{0}\t{1}\t{2}\t{3}'.format(fid, i[0], i[1], b))
 	fid += 1
 
+table = ('flock{0}real'.format(filename)).replace('.csv','')
+
 db = pdbc.DBConnector()
-db.resetTable('flock{0}real'.format(file))
+db.resetTable(table)
 stdin = '\n'.join(stdin)
 #print(stdin)
-db.copyToTable('flock{0}real'.format(file),io.StringIO(stdin))
+db.copyToTable(table,io.StringIO(stdin))
