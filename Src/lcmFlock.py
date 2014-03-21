@@ -41,7 +41,6 @@ def getTransactions(points, timestamp, maximalDisks):
 	
 
 def flocks(output1, totalMaximalDisks, keyFlock):
-	stdin = []
 	lines = output1.readlines()
 	for line in lines:
 		lineSplit = line.split(' ')
@@ -81,6 +80,7 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 def main():
 	t1 = time.time()
 	global traj
+	global stdin
 	
 	bfe.epsilon = 40
 	bfe.mu = 3
@@ -106,6 +106,7 @@ def main():
 	
 	traj = {}
 	totalMaximalDisks = {}
+	stdin = []
 	
 	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
 		centersDiskCompare, treeCenters, disksTime = bfe.disksTimestamp(points, timestamp)	
