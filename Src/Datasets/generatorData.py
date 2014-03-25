@@ -21,12 +21,14 @@
 #  MA 02110-1301, USA.
 #  
 #  
+import sys
 
-import pdbc
+sys.path.append('..')
+
+import Pdbc
 import csv
 import random
 import math
-import sys
 import os
 import io
 
@@ -135,7 +137,7 @@ for i in vector:
 
 table = ('flock{0}real'.format(filename)).replace('.csv','')
 
-db = pdbc.DBConnector()
+db = Pdbc.DBConnector()
 db.resetTable(table)
 stdin = '\n'.join(stdin)
 #print(stdin)
