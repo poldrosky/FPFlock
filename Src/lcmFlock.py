@@ -22,11 +22,11 @@
 #  
 #  
 
-import bfe
+import Maximal
 import time
 import csv
 import os
-import pdbc
+import Pdbc
 import io
 
 def getTransactions(points, timestamp, maximalDisks):
@@ -46,7 +46,7 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 		lineSplit = line.split(' ')
 		array = list(map(int,lineSplit[:-1]))
 		array.sort()
-		if len(array) < bfe.delta:
+		if len(array) < delta:
 			continue
 		frecuency = int(lineSplit[-1].replace('(','').replace(')',''))
 		members = totalMaximalDisks[int(str(array[0]))].members
@@ -59,7 +59,7 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 					members = members.intersection(totalMaximalDisks[int(str(array[element]))].members)
 				end = now
 				
-			elif end-begin >= bfe.delta - 1:
+			elif end-begin >= delta - 1:
 				b = list(members)
 				b.sort()
 				stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, begin, end, b))
@@ -69,7 +69,7 @@ def flocks(output1, totalMaximalDisks, keyFlock):
 			else: 
 				begin = end = now
 				
-		if end-begin >= bfe.delta - 1:
+		if end-begin >= delta - 1:
 			b = list(members)
 			b.sort()
 			stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, begin, end, b))
@@ -81,19 +81,20 @@ def main():
 	t1 = time.time()
 	global traj
 	global stdin
+	global delta
 	
-	bfe.epsilon = 40
-	bfe.mu = 3
-	bfe.delta = 3
-	bfe.precision = 0.001
-	filename = 'SD1300T100t.csv'
+	Maximal.epsilon = 200
+	Maximal.mu = 3
+	delta = 3
+	Maximal.precision = 0.001
+	filename = 'Oldenburg.csv'
 	
 	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
 	output = open('output.dat','w')
 		
 	next(dataset)
 		
-	points = bfe.pointTimestamp(dataset)
+	points = Maximal.pointTimestamp(dataset)
 	
 	timestamps = list(points.keys())
 	timestamps.sort()
@@ -107,11 +108,11 @@ def main():
 	stdin = []
 	
 	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
-		centersDiskCompare, treeCenters, disksTime = bfe.disksTimestamp(points, timestamp)	
+		centersDiskCompare, treeCenters, disksTime = Maximal.disksTimestamp(points, timestamp)	
 		if centersDiskCompare == 0:
 			continue
 		#print(timestamp, len(centersDiskCompare))
-		maximalDisks, diskID = bfe.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
+		maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
 		totalMaximalDisks.update(maximalDisks)
 		
 		getTransactions(points, timestamp, maximalDisks)
@@ -122,7 +123,7 @@ def main():
 		output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
 	
 	output.close()
-	os.system("./fim_closed output.dat " + str(bfe.mu) + " output.mfi")
+	os.system("./fim_closed output.dat " + str(Maximal.mu) + " output.mfi")
 	output1 = open('output.mfi','r')	
 	
 	keyFlock = 1
@@ -131,7 +132,7 @@ def main():
 	
 	table = ('flock{0}lcm'.format(filename)).replace('.csv','')
 	stdin = '\n'.join(stdin)
-	db = pdbc.DBConnector()
+	db = Pdbc.DBConnector()
 	db.resetTable(table.format(filename))
 	db.copyToTable(table,io.StringIO(stdin))
 	
