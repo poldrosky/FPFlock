@@ -83,13 +83,13 @@ def main():
 	global stdin
 	global delta
 	
-	Maximal.epsilon = 200
-	Maximal.mu = 3
+	Maximal.epsilon = 45
+	Maximal.mu = 4
 	delta = 3
 	Maximal.precision = 0.001
-	filename = 'Oldenburg.csv'
+	filename = 'SJ17500T100t500f.csv'
 	
-	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
+	dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
 	output = open('output.dat','w')
 		
 	next(dataset)

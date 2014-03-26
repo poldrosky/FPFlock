@@ -268,7 +268,7 @@ def main():
 	epsilon = 200
 	mu = 3
 	precision = 0.001
-	filename = 'Oldenburg.csv'
+	filename = 'Datasets/SJ17500T100t500f.csv'
 	
 	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
 		

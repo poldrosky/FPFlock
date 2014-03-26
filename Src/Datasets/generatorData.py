@@ -40,8 +40,6 @@ timestamp = 100
 
 filename = 'SJ{0}T{1}t{2}f.csv'.format(pointsTimestamp,timestamp,flocks)
 
-os.system('rm {0}'.format(filename))
-
 output = open(filename, 'w', newline='')
 writer = csv.writer(output, delimiter='\t')
 
@@ -94,8 +92,8 @@ points = randomPoints(flocks, 1, pointsTimestamp)
 times = []
 
 while len(times) < flocks:
-	a = random.randint(1, 100)
-	b = random.randint(1, 100)
+	a = random.randint(1, 99)
+	b = random.randint(1, 99)
 	if a < b and (b-a)>=3 and (b-a)<=20:
 		times.append([a,b])
 	elif a>b and (a-b)>=3 and (b-a)<=20:
