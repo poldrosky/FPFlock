@@ -45,6 +45,8 @@ writer = csv.writer(output, delimiter='\t')
 
 print(filename)
 
+writer.writerow(['id', 'time', 'latitude', 'longitude'])
+
 random.seed(666)
 
 def matrix():
@@ -86,14 +88,15 @@ writer = csv.writer(output, delimiter='\t')
 
 
 dataset = csv.reader(open('aux.csv', 'r'),delimiter='\t')
+next(dataset)
 
 points = randomPoints(flocks, 1, pointsTimestamp)
 
 times = []
 
 while len(times) < flocks:
-	a = random.randint(1, 99)
-	b = random.randint(1, 99)
+	a = random.randint(0, 99)
+	b = random.randint(0, 99)
 	if a < b and (b-a)>=3 and (b-a)<=20:
 		times.append([a,b])
 	elif a>b and (a-b)>=3 and (b-a)<=20:
@@ -123,6 +126,7 @@ for i in vector:
 					writer.writerow([key, j, int(x)+random.randint(-10, 10), int(y)+random.randint(-10, 10)])
 					key += 1
 		dataset = csv.reader(open('aux.csv', 'r'),delimiter='\t')
+		next(dataset)
 	aux = key			
 
 stdin = []
