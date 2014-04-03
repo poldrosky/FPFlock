@@ -49,78 +49,91 @@ class Flock(Maximal.Disk):
 	def __str__(self):
 		return "%s %s" % (self.disk.id, self.disk.members)	
 
-def flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin):
-	"""Receive maximal disks, previous flocks, tiemstamp, key Flock 
-	return previos flock and write filename with flocks """
-	currentFlocks = []
-	for md in maximalDisks:
-		for f in previousFlocks:
-			inter = len(maximalDisks[md].members.intersection(f.members))
-			if(inter>=mu):
-				f1 = copy.copy(f)
-				f1.members = maximalDisks[md].members.intersection(f1.members)
-				f1.diskFlock.append(maximalDisks[md].id)
-				f1.end = timestamp
-												
-				if f1.getDuration() == delta:
-					b = list(f1.members)
-					b.sort()
-					stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, f1.start, f1.end, b))
-					keyFlock += 1
-					f1.start = timestamp - delta + 1 
+class BFEFlock(object):
+	""" This class is intanced with epsilon, mu and delta"""
+	def __init__(self, epsilon, mu, delta):
+		self.epsilon = epsilon
+		self.mu = mu
+		self.delta = delta
+
+	def flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin):
+		"""Receive maximal disks, previous flocks, tiemstamp, key Flock 
+		return previos flock and write filename with flocks """
+		currentFlocks = []
+		for md in maximalDisks:
+			for f in previousFlocks:
+				inter = len(maximalDisks[md].members.intersection(f.members))
+				if(inter>=mu):
+					f1 = copy.copy(f)
+					f1.members = maximalDisks[md].members.intersection(f1.members)
+					f1.diskFlock.append(maximalDisks[md].id)
+					f1.end = timestamp
+													
+					if f1.getDuration() == delta:
+						b = list(f1.members)
+						b.sort()
+						stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, f1.start, f1.end, b))
+						keyFlock += 1
+						f1.start = timestamp - delta + 1 
+						
+					if f1.start > timestamp  - delta:
+						currentFlocks.append(f1)
+											
+			currentFlocks.append(Flock(maximalDisks[md],timestamp))
 					
-				if f1.start > timestamp  - delta:
-					currentFlocks.append(f1)
-										
-		currentFlocks.append(Flock(maximalDisks[md],timestamp))
-				
-	previousFlocks = currentFlocks
-	return (previousFlocks, keyFlock, stdin)
+		previousFlocks = currentFlocks
+		return (previousFlocks, keyFlock, stdin)
 	
 	
-def main():
-	t1 = time.time()
-	global delta
-	global mu
+	def flockFinder(self, filename):
 		
-	Maximal.epsilon = 45
-	mu = Maximal.mu = 4
-	delta = 3
-	Maximal.precision = 0.001
-	filename = 'SJ17500T100t500f.csv'
-	
-	dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
-	
-	next(dataset)
-	
-	points = Maximal.pointTimestamp(dataset)
-	
-	timestamps = list(points.keys())
-	timestamps.sort()
-	
-	previousFlocks = []
-	keyFlock = 1
-	diskID = 1
-	stdin = []
-	
-	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
-		centersDiskCompare, treeCenters, disksTime = Maximal.disksTimestamp(points, timestamp)	
-		if centersDiskCompare == 0:
-			continue
-		#print(timestamp, len(centersDiskCompare))
-		maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
-		#print("Maximal",len(maximalDisks))
-		previousFlocks, keyFlock, stdin = flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
-	
-	table = ('flock{0}bfe'.format(filename)).replace('.csv','')
-	stdin = '\n'.join(stdin)
-	db = Pdbc.DBConnector()
-	db.resetTable(table.format(filename))
-	db.copyToTable(table,io.StringIO(stdin))
-	
-	t2 = time.time()-t1
-	print("\nTime: ",t2)
-	return 0
+		global delta
+		global mu
+			
+		Maximal.epsilon = self.epsilon
+		mu = Maximal.mu = self.mu
+		delta = self.delta
+		Maximal.precision = 0.001
+				
+		dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
+		next(dataset)
+		
+		t1 = time.time()
+		
+		points = Maximal.pointTimestamp(dataset)
+		
+		timestamps = list(points.keys())
+		timestamps.sort()
+		
+		previousFlocks = []
+		keyFlock = 1
+		diskID = 1
+		stdin = []
+		
+		for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
+			centersDiskCompare, treeCenters, disksTime = Maximal.disksTimestamp(points, timestamp)	
+			if centersDiskCompare == 0:
+				continue
+			#print(timestamp, len(centersDiskCompare))
+			maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
+			#print("Maximal",len(maximalDisks))
+			previousFlocks, keyFlock, stdin = BFEFlock.flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
+		
+		table = ('flock{0}bfe'.format(filename)).replace('.csv','')
+		print("Flocks: ",len(stdin))
+		stdin = '\n'.join(stdin)
+		db = Pdbc.DBConnector()
+		db.resetTable(table.format(filename))
+		db.copyToTable(table,io.StringIO(stdin))
+		
+		t2 = round(time.time()-t1,3)
+		print("\nTime: ",t2)
+		
+def main():
+	bfe = BFEFlock(200,3,3)
+	#bfe.flockFinder('SJ2500T100t500f.csv')
+	bfe.flockFinder('Oldenburg.csv')
+
 
 if __name__ == '__main__':
 	main()

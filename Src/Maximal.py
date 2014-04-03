@@ -268,12 +268,11 @@ def main():
 	epsilon = 200
 	mu = 3
 	precision = 0.001
-	filename = 'Datasets/SJ17500T100t500f.csv'
+	filename = 'Beijing_Jan-Apr09.csv'
 	
-	dataset = csv.reader(open(filename, 'r'),delimiter='\t')
-		
+	dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
 	next(dataset)
-		
+	
 	points = pointTimestamp(dataset)
 	
 	timestamps = list(points.keys())
@@ -284,12 +283,12 @@ def main():
 	diskID = 1
 	
 	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
-		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)	
+		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)
 		if centersDiskCompare == 0:
 			continue
 		#print(timestamp, len(centersDiskCompare))
 		maximalDisks, diskID = maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
-		#print("Maximal",len(maximalDisks))
+		print("Maximal",len(maximalDisks))
 	
 	t2 = time.time() - t1	
 	print("\nTime: ",t2)
