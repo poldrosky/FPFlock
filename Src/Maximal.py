@@ -96,7 +96,7 @@ class Disk(object):
 		self.id = str(center.x)+"-"+str(center.y)
 		self.center = center
 		self.members = members
-		self.timestamp = timestamp
+		self.timestamp = int(timestamp)
 		self.valid = True
 		
 	def __str__(self):
@@ -142,11 +142,10 @@ def pointTimestamp(dataset):
 	points={}
 	for id, timestamp, latitude, longitude in dataset:
 		if timestamp in points:
-			points[timestamp].append(Point(id,timestamp,latitude,longitude))
+			points[timestamp].append(Point(int(id),int(timestamp),float(latitude),float(longitude)))
 		else:
 			points[timestamp] = []
-			points[timestamp].append(Point(id,timestamp,latitude,longitude))
-
+			points[timestamp].append(Point(int(id),int(timestamp),float(latitude),float(longitude)))
 	return points
 	
 
@@ -260,7 +259,6 @@ def maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, 
 	
 
 def main():
-	t1 = time.time()
 	global epsilon
 	global mu
 	global precision
@@ -268,21 +266,23 @@ def main():
 	epsilon = 200
 	mu = 3
 	precision = 0.001
-	filename = 'Beijing_Jan-Apr09.csv'
+	filename = 'Oldenburg.csv'
 	
 	dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
 	next(dataset)
 	
+	t1 = time.time()
+	
 	points = pointTimestamp(dataset)
 	
-	timestamps = list(points.keys())
+	timestamps = list(map(int,points.keys()))
 	timestamps.sort()
-	
+		
 	previousFlocks = []
 	keyFlock = 1
 	diskID = 1
 	
-	for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
+	for timestamp in timestamps:
 		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)
 		if centersDiskCompare == 0:
 			continue

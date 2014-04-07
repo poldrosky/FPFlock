@@ -36,20 +36,68 @@ class DBConnector():
 			print("Connection OK")
 		except:
 			print("No connection")
+	
 			
-	def resetTable(self,table):
+	def createTableFlock(self,table):
 		self.table = table
 		cur = self.conn.cursor()
-		drop = """DROP TABLE IF EXISTS
-				{0};""".format(table)
-		create = """CREATE TABLE
-					{0} (fid Integer,  started integer,  ended integer,   members character varying); """.format(table)
+		create = """CREATE TABLE IF NOT EXISTS
+					{0} (fid Integer,
+					started integer,
+					ended integer,
+					members character varying); """.format(table)
+		
 		try:
-			cur.execute(drop)
 			cur.execute(create)
 			self.conn.commit()
 		except:
 			print("Error creating table")
+		
+	
+	def resetTable(self,table):
+		self.table = table
+		cur = self.conn.cursor()
+		truncate = """TRUNCATE TABLE {0};""".format(table)
+				
+		try:
+			cur.execute(truncate)
+			self.conn.commit()
+		except:
+			print("Error reset table")
+			
+	
+	def createTableTest(self):
+		self.table = 'test'
+		cur = self.conn.cursor()
+		create = """CREATE TABLE IF NOT EXISTS {0} 
+						(dataset character varying,
+						epsilon integer,
+						mu integer,
+						delta integer,
+						timetest real,
+						flocks integer,
+						tag character varying
+						) """.format(self.table)
+		
+		try:
+			cur.execute(create)
+			self.conn.commit()
+		except:
+			print("Error creating test table")
+						
+		
+	def insertTest(self, filename, epsilon, mu, delta, time, flocks, tag):
+		self.table = 'test'
+		cur = self.conn.cursor()
+		insert = """INSERT INTO {0} VALUES('{1}',{2},{3},{4},{5},{6},'{7}')""".format(self.table,
+												filename, epsilon, mu, delta, time, flocks, tag)
+												
+		try:
+			cur.execute(insert)
+			self.conn.commit()
+		except:
+			print("Error insert table test")
+		
 			
 	def copyToTable(self,table, stdin):
 		self.table = table

@@ -28,6 +28,7 @@ import csv
 import os
 import Pdbc
 import io
+import sys
 
 class LCMFlock(object):
 	""" This class is intanced with epsilon, mu and delta"""
@@ -36,7 +37,7 @@ class LCMFlock(object):
 		self.mu = mu
 		self.delta = delta
 
-	def getTransactions(points, timestamp, maximalDisks):
+	def getTransactions(points, maximalDisks):
 		for maximal in maximalDisks:
 			for member in maximalDisks[maximal].members:
 				if not member  in traj.keys():
@@ -84,7 +85,7 @@ class LCMFlock(object):
 	
 		return stdin
 			
-	def flockFinder(self,filename):
+	def flockFinder(self,filename,tag):
 		global traj
 		global stdin
 		global delta
@@ -102,7 +103,7 @@ class LCMFlock(object):
 			
 		points = Maximal.pointTimestamp(dataset)
 		
-		timestamps = list(points.keys())
+		timestamps = list(map(int,points.keys()))
 		timestamps.sort()
 		
 		previousFlocks = []
@@ -113,7 +114,7 @@ class LCMFlock(object):
 		totalMaximalDisks = {}
 		stdin = []
 		
-		for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
+		for timestamp in timestamps:
 			centersDiskCompare, treeCenters, disksTime = Maximal.disksTimestamp(points, timestamp)	
 			if centersDiskCompare == 0:
 				continue
@@ -121,7 +122,7 @@ class LCMFlock(object):
 			maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
 			totalMaximalDisks.update(maximalDisks)
 			
-			LCMFlock.getTransactions(points, timestamp, maximalDisks)
+			LCMFlock.getTransactions(points, maximalDisks)
 		
 		for i in traj:
 			if len(traj[i]) == 1:
@@ -136,19 +137,28 @@ class LCMFlock(object):
 		keyFlock = 1
 		stdin = LCMFlock.flocks(output1, totalMaximalDisks, keyFlock)
 				
-		table = ('flock{0}lcm'.format(filename)).replace('.csv','')
+		table = ('flocksLCM')
 		print("Flocks: ",len(stdin))
+		flocks = len(stdin)
 		stdin = '\n'.join(stdin)
 		db = Pdbc.DBConnector()
+		db.createTableFlock(table)
 		db.resetTable(table.format(filename))
 		db.copyToTable(table,io.StringIO(stdin))
+		
 		t2 = round(time.time()-t1,3)
 		print("\nTime: ",t2)
-	
+		
+		db.createTableTest()
+		db.insertTest(filename,self.epsilon,self.mu, delta, t2, flocks, tag)
+		
 def main():
-	lcm = LCMFlock(200,3,3)
+	#lcm = LCMFlock(200,3,3)
 	#lcm.flockFinder('SJ2500T100t500f.csv')
-	lcm.flockFinder('Oldenburg.csv')
+	#lcm.flockFinder('Oldenburg.csv','test1')
+	
+	lcm = LCMFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+	lcm.flockFinder(str(sys.argv[4]),'lcm'+str(sys.argv[5]))
 	
 if __name__ == '__main__':
 	main()

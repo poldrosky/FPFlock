@@ -30,6 +30,7 @@ import copy
 import Pdbc
 import Maximal
 import io
+import sys
 
 class Flock(Maximal.Disk):
 	def __init__(self, disk, timestamp):
@@ -85,8 +86,7 @@ class BFEFlock(object):
 		return (previousFlocks, keyFlock, stdin)
 	
 	
-	def flockFinder(self, filename):
-		
+	def flockFinder(self, filename,tag):
 		global delta
 		global mu
 			
@@ -102,38 +102,46 @@ class BFEFlock(object):
 		
 		points = Maximal.pointTimestamp(dataset)
 		
-		timestamps = list(points.keys())
+		timestamps = list(map(int,points.keys()))
 		timestamps.sort()
-		
+				
 		previousFlocks = []
 		keyFlock = 1
 		diskID = 1
 		stdin = []
 		
-		for timestamp in range(int(timestamps[0]),int(timestamps[0])+len(timestamps)):
+		for timestamp in timestamps:
 			centersDiskCompare, treeCenters, disksTime = Maximal.disksTimestamp(points, timestamp)	
 			if centersDiskCompare == 0:
 				continue
 			#print(timestamp, len(centersDiskCompare))
 			maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
 			#print("Maximal",len(maximalDisks))
-			previousFlocks, keyFlock, stdin = BFEFlock.flocks(maximalDisks, previousFlocks, timestamp, keyFlock, stdin)
+			previousFlocks, keyFlock, stdin = BFEFlock.flocks(maximalDisks, previousFlocks, int(timestamp), keyFlock, stdin)
 		
-		table = ('flock{0}bfe'.format(filename)).replace('.csv','')
+		table = ('flocksBFE')
 		print("Flocks: ",len(stdin))
+		flocks = len(stdin)
 		stdin = '\n'.join(stdin)
 		db = Pdbc.DBConnector()
+		db.createTableFlock(table)
 		db.resetTable(table.format(filename))
 		db.copyToTable(table,io.StringIO(stdin))
-		
+
 		t2 = round(time.time()-t1,3)
 		print("\nTime: ",t2)
 		
+		db.createTableTest()
+		db.insertTest(filename,self.epsilon,mu, delta, t2, flocks, tag)
+		
 def main():
-	bfe = BFEFlock(200,3,3)
+	#bfe = BFEFlock(200,3,3)
 	#bfe.flockFinder('SJ2500T100t500f.csv')
-	bfe.flockFinder('Oldenburg.csv')
-
+	#bfe.flockFinder('Oldenburg.csv','test1')
+	
+	bfe = BFEFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+	bfe.flockFinder(str(sys.argv[4]),'bfe'+str(sys.argv[5]))
+	
 
 if __name__ == '__main__':
 	main()
