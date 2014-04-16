@@ -96,6 +96,13 @@ class LCMFlock(object):
 		Maximal.precision = 0.001
 				
 		dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
+		
+		if os.path.exists('output.dat'):
+			os.system('rm output.dat')		
+		
+		if os.path.exists('output.mfi'):
+			os.system('rm output.mfi')
+
 		output = open('output.dat','w')
 		next(dataset)
 		
@@ -131,11 +138,13 @@ class LCMFlock(object):
 		
 		output.close()
 		
-		os.system("./fim_closed output.dat " + str(Maximal.mu) + " output.mfi")
-		output1 = open('output.mfi','r')				
+		os.system("./fim_closed output.dat " + str(Maximal.mu) + " output.mfi > /dev/null")
 		
-		keyFlock = 1
-		stdin = LCMFlock.flocks(output1, totalMaximalDisks, keyFlock)
+		if os.path.exists('output.mfi'):
+			output1 = open('output.mfi','r')				
+		
+			keyFlock = 1
+			stdin = LCMFlock.flocks(output1, totalMaximalDisks, keyFlock)
 				
 		table = ('flocksLCM')
 		print("Flocks: ",len(stdin))
