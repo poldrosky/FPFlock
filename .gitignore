@@ -37,8 +37,10 @@ nosetests.xml
 
 # Output
 output.*
-*.csv
+Src/Datasets/*.csv
 
 # Temp
 *.*~
 
+#R
+.Rhistory
