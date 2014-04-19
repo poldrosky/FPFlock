@@ -44,3 +44,6 @@ Src/Datasets/*.csv
 
 #R
 .Rhistory
+
+#PDF
+*.pdf
