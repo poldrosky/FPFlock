@@ -7,7 +7,7 @@ graphicFlock <- function(filename){
   bfeflock <- c(bfe$time)
   lcmflock <- c(lcm$time)
 
-  limit <- ceiling(max(bfeflock)) + 20
+  limit <- ceiling(max(bfeflock, lcmflock )) + 20
   
   namePDF <- paste0(title,".pdf")
   

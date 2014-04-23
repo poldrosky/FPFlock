@@ -1,0 +1,14 @@
+dataset	epsilon	mu	delta	time	flocks	tag
+Tapas.csv	10	10	5	104580	0	bfe
+Tapas.csv	15	10	5	233801	1244	bfe
+Tapas.csv	20	10	5	578372	256347	bfe
+Tapas.csv	25	10	5	1672091	1277012	bfe
+Tapas.csv	10	10	5	103107	0	lcm
+Tapas.csv	15	10	5	234827	64	lcm
+Tapas.csv	20	10	5	495776	2081	lcm
+Tapas.csv	25	10	5	807203	9300	lcm
+Tapas.csv	30	10	5	1769600	49003	lcm
+Tapas.csv	35	10	5	4030746	177009	lcm
+Tapas.csv	40	10	5	9237491	487679	lcm
+Tapas.csv	45	10	5	16748363	908708	lcm
+Tapas.csv	50	10	5	36777352	1840337	lcm
