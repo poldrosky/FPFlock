@@ -1,6 +1,3 @@
-python3 bfe.py 5 5 5 beijing_alternative.csv test1
-python3 bfe.py 5 5 5 beijing_alternative.csv test2
-python3 bfe.py 5 5 5 beijing_alternative.csv test3
 python3 bfe.py 10 5 5 beijing_alternative.csv test1
 python3 bfe.py 10 5 5 beijing_alternative.csv test2
 python3 bfe.py 10 5 5 beijing_alternative.csv test3
@@ -22,9 +19,12 @@ python3 bfe.py 35 5 5 beijing_alternative.csv test3
 python3 bfe.py 40 5 5 beijing_alternative.csv test1
 python3 bfe.py 40 5 5 beijing_alternative.csv test2
 python3 bfe.py 40 5 5 beijing_alternative.csv test3
-python3 lcmFlock.py 5 5 5 beijing_alternative.csv test1
-python3 lcmFlock.py 5 5 5 beijing_alternative.csv test2
-python3 lcmFlock.py 5 5 5 beijing_alternative.csv test3
+python3 bfe.py 45 5 5 beijing_alternative.csv test1
+python3 bfe.py 45 5 5 beijing_alternative.csv test2
+python3 bfe.py 45 5 5 beijing_alternative.csv test3
+python3 bfe.py 50 5 5 beijing_alternative.csv test1
+python3 bfe.py 50 5 5 beijing_alternative.csv test2
+python3 bfe.py 50 5 5 beijing_alternative.csv test3
 python3 lcmFlock.py 10 5 5 beijing_alternative.csv test1
 python3 lcmFlock.py 10 5 5 beijing_alternative.csv test2
 python3 lcmFlock.py 10 5 5 beijing_alternative.csv test3
@@ -46,4 +46,10 @@ python3 lcmFlock.py 35 5 5 beijing_alternative.csv test3
 python3 lcmFlock.py 40 5 5 beijing_alternative.csv test1
 python3 lcmFlock.py 40 5 5 beijing_alternative.csv test2
 python3 lcmFlock.py 40 5 5 beijing_alternative.csv test3
+python3 lcmFlock.py 45 5 5 beijing_alternative.csv test1
+python3 lcmFlock.py 45 5 5 beijing_alternative.csv test2
+python3 lcmFlock.py 45 5 5 beijing_alternative.csv test3
+python3 lcmFlock.py 50 5 5 beijing_alternative.csv test1
+python3 lcmFlock.py 50 5 5 beijing_alternative.csv test2
+python3 lcmFlock.py 50 5 5 beijing_alternative.csv test3
 echo "Finish test Beijin alternative mu=5 delta=5"
