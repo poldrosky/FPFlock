@@ -4,6 +4,7 @@ graphicFlock <- function(filename){
   lcm <- test[test$tag=='lcm',]
   bfe <- test[test$tag=='bfe',]
   epsilon <- c(lcm$epsilon)
+  epsilon1 <- c(bfe$epsilon)
   bfeflock <- c(bfe$time)
   lcmflock <- c(lcm$time)
 
@@ -17,7 +18,7 @@ graphicFlock <- function(filename){
     main=paste0("Cambiando Epsilon\n [",title[1],"]"),
     xlab="Epsilon (m)", ylab="Tiempo de Procesamiento (s)")
 
-  lines(epsilon, bfeflock, type="b",
+  lines(epsilon1, bfeflock, type="b",
     pch=17, lty=2, col="blue")
 
   legend("topleft", inset=.05, title="Algoritmo", c("LCM","BFE"),
