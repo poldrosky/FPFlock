@@ -37,7 +37,6 @@ nosetests.xml
 
 # Output
 output.*
-Src/Datasets/*.csv
 
 # Temp
 *.*~
@@ -47,3 +46,7 @@ Src/Datasets/*.csv
 
 #PDF
 *.pdf
+
+#Datasets
+Src/Datasets/*.csv
+
