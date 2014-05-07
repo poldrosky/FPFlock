@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-#  Maximal.py
+#  LCMmaximal.py
 #  
 #  Copyright 2014 Omar Ernesto Cabrera Rosero <omarcabrera@udenar.edu.co>
 #  
@@ -26,8 +26,6 @@ import csv
 import scipy.spatial as ss
 import math
 import time
-import copy
-import io
 
 class Index(object):
 	def __init__(self,x,y):
@@ -164,7 +162,7 @@ def disksTimestamp(points, timestamp):
 			value.append(point)
 			dictPoint[str(index)]= value
 	
-	grid=Grid(dictPoint)
+	grid = Grid(dictPoint)
 	centersDiskCompare=[]
 	
 	for point in points[str(timestamp)]:
@@ -208,56 +206,9 @@ def disksTimestamp(points, timestamp):
 		return 0,0,0
  							
 	centersDiskCompare = list(set(centersDiskCompare))
-	treeCenters = ss.cKDTree(centersDiskCompare)
 	disksTime = disks[timestamp]
-	
-	return (centersDiskCompare, treeCenters, disksTime)
+	return (centersDiskCompare,  disksTime)
 				
-
-def maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID):
-	"""This method return the maximal disks per timestamp"""
-	maximalDisks = {}
-	maximalDisks[timestamp] = {}
-	
-	for i in disksTime:
-		if disksTime[i].valid:
-			ce = treeCenters.query_ball_point([disksTime[i].center.x,disksTime[i].center.y], epsilon+precision)
-			disksOverlapped = {}
-			for l in ce:
-				var= centersDiskCompare[l]
-				var1=str(var[0])+"-"+str(var[1])
-				if (disksTime[var1].valid):
-					disksOverlapped[disksTime[var1].id] = disksTime[var1]
-			
-			c = list(disksOverlapped.keys())
-			
-			for j in range(len(c)):
-				for k in range(j+1,len(c)):
-					if  not c[j] in list(disksOverlapped.keys()):
-						continue
-						
-					if  not c[k] in list(disksOverlapped.keys()):
-						continue
-					
-					if(disksOverlapped[c[j]].members.issubset(disksOverlapped[c[k]].members)):
-						disksTime[c[j]].valid = False
-						del (disksOverlapped[c[j]])
-						continue
-						
-					if(disksOverlapped[c[k]].members.issubset(disksOverlapped[c[j]].members)):
-						disksTime[c[k]].valid = False
-						del (disksOverlapped[c[k]])
-						continue
-						
-	for d in disksTime:
-		if disksTime[d].valid:
-			disksTime[d].id = diskID
-			maximalDisks[timestamp][disksTime[d].id] = disksTime[d]
-			diskID += 1
-	
-	return (maximalDisks[timestamp], diskID)
-	
-
 def main():
 	global epsilon
 	global mu
@@ -278,18 +229,14 @@ def main():
 	timestamps = list(map(int,points.keys()))
 	timestamps.sort()
 		
-	previousFlocks = []
-	keyFlock = 1
 	diskID = 1
 	
 	for timestamp in timestamps:
-		centersDiskCompare, treeCenters, disksTime = disksTimestamp(points, timestamp)
+		centersDiskCompare,  disksTime = disksTimestamp(points, timestamp)
 		if centersDiskCompare == 0:
 			continue
-		#print(timestamp, len(centersDiskCompare))
-		maximalDisks, diskID = maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
-		print("Maximal",len(maximalDisks))
-	
+		print(timestamp, len(centersDiskCompare))
+			
 	t2 = time.time() - t1	
 	print("\nTime: ",t2)
 	return 0
