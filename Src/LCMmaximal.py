@@ -26,6 +26,7 @@ import csv
 import scipy.spatial as ss
 import math
 import time
+import os
 
 class Index(object):
 	def __init__(self,x,y):
@@ -86,7 +87,7 @@ class Grid(object):
 		if (len(points) >= mu):
 			return points			
 		else:
-			return None
+			return []
 		
 
 class Disk(object):
@@ -108,8 +109,7 @@ class Disk(object):
 def calculateDisks(p1, p2):
 	"""Calculate the center of the disk passing through two points"""
 	r2 = math.pow(epsilon/2,2)
-	disks = []
-    
+	    
 	p1_x = p1.x
 	p1_y = p1.y
 	p2_x = p2.x
@@ -129,10 +129,9 @@ def calculateDisks(p1, p2):
 	k_1 = ((Y - X * root) / 2) + p2_y
 	k_2 = ((Y + X * root) / 2) + p2_y
 
-	disks.append(Point(h_1, k_1))
+	disk = (Point(h_1, k_1))
 	#disks.append(Point(h_2, k_2))
-    
-	return disks
+	return disk
 
 
 def pointTimestamp(dataset):
@@ -152,6 +151,7 @@ def disksTimestamp(points, timestamp):
 	nearest tree centers and disks per timestamp with yours members"""
 	dictPoint={}
 	disks = {}
+	
 	for point in points[str(timestamp)]:
 		index = point.getIndex()
 		if str(index) in dictPoint:
@@ -165,10 +165,14 @@ def disksTimestamp(points, timestamp):
 	grid = Grid(dictPoint)
 	centersDiskCompare=[]
 	
+	#pointsFrame = []
+	
 	for point in points[str(timestamp)]:
+		#if not point in pointsFrame:
 		pointsFrame = grid.getFrame(point)
-		if (pointsFrame == None):
-			continue
+	
+		if (pointsFrame == []):
+			continue	
 		
 		frame = []
 		
@@ -177,37 +181,58 @@ def disksTimestamp(points, timestamp):
 			
 		treeFrame = ss.cKDTree(frame)
 		pointsNearestFrame = treeFrame.query_ball_point([point.x,point.y], epsilon+precision)
-
+	
 		for i in pointsNearestFrame:
 			p2 = pointsFrame[i]
 			if point == p2:
 				continue
-			centersDisk = calculateDisks(point, p2)
+				
+			centerDisk = calculateDisks(point, p2)
 			
-			for j in centersDisk:
-				nearestCenter = treeFrame.query_ball_point([j.x,j.y], (epsilon/2)+precision)
-				members = []
-				
-				for k in nearestCenter:
-					members.append(pointsFrame[k].id)
-				
-				if len(members) < mu:
-					continue
-				centersDiskCompare.append((j.x,j.y))
-				
-				pKeyDisk = str(j.x)+"-"+str(j.y)
-				if timestamp in disks:
-					disks[timestamp][pKeyDisk] = Disk(j, timestamp, set(members))
-				else:
-					disks[timestamp] = {}
-					disks[timestamp][pKeyDisk] = Disk(j, timestamp, set(members))
+			if centerDisk == []:
+				continue
+			
+			nearestCenter = treeFrame.query_ball_point([centerDisk.x,centerDisk.y], (epsilon/2)+precision)
+			members = []
+			
+			for k in nearestCenter:
+				members.append(pointsFrame[k].id)
+			
+			if len(members) < mu:
+				continue
+							
+			pKeyDisk = str(centerDisk.x)+"-"+str(centerDisk.y)
+			if timestamp in disks:
+				disks[timestamp][pKeyDisk] = Disk(centerDisk, timestamp, set(members))
+			else:
+				disks[timestamp] = {}
+				disks[timestamp][pKeyDisk] = Disk(centerDisk, timestamp, set(members))
 	
-	if centersDiskCompare == []:
-		return 0,0,0
- 							
-	centersDiskCompare = list(set(centersDiskCompare))
+	if not timestamp in disks:
+		return 0
+
 	disksTime = disks[timestamp]
-	return (centersDiskCompare,  disksTime)
+	return (disksTime)
+	
+def maximalDisksTimestamp(disksTime, timestamp, diskID):
+	"""This method return the maximal disks per timestamp"""
+	maximalDisks = {}
+	maximalDisks[timestamp] = {}
+	
+	if os.path.exists('outputDisk.dat'):
+			os.system('rm outputDisk.dat')
+			
+	if os.path.exists('outputDisk.mfi'):
+			os.system('rm outputDisk.mfi')
+			
+	output = open('outputDisk.dat','w')		
+	
+	for disk in disksTime:
+		output.write(str((disksTime[disk].members)).replace("{","").replace("}","").replace(",","")+"\n")
+		
+		
+	
+	return (maximalDisks[timestamp], diskID)
 				
 def main():
 	global epsilon
@@ -232,10 +257,11 @@ def main():
 	diskID = 1
 	
 	for timestamp in timestamps:
-		centersDiskCompare,  disksTime = disksTimestamp(points, timestamp)
-		if centersDiskCompare == 0:
+		disksTime = disksTimestamp(points, timestamp)
+		if disksTime == 0:
 			continue
-		print(timestamp, len(centersDiskCompare))
+		print(timestamp, len(disksTime))
+		maximalDisks, diskID = maximalDisksTimestamp(disksTime, timestamp, diskID)
 			
 	t2 = time.time() - t1	
 	print("\nTime: ",t2)
