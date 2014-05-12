@@ -230,8 +230,17 @@ def maximalDisksTimestamp(disksTime, timestamp, diskID):
 	for disk in disksTime:
 		output.write(str((disksTime[disk].members)).replace("{","").replace("}","").replace(",","")+"\n")
 		
-		
+	output.close()
 	
+	os.system("./fim_maximal outputDisk.dat " + str(mu) + " outputDisk.mfi > /dev/null")	
+	
+	output1 = open('outputDisk.mfi','r')
+	lines = output1.readlines()
+	for line in lines:
+		lineSplit = line.split(' ')
+		array = list(map(int,lineSplit[:-1]))
+		array.sort()
+			
 	return (maximalDisks[timestamp], diskID)
 				
 def main():
@@ -262,7 +271,9 @@ def main():
 			continue
 		print(timestamp, len(disksTime))
 		maximalDisks, diskID = maximalDisksTimestamp(disksTime, timestamp, diskID)
-			
+		input("HOLA")
+		
+					
 	t2 = time.time() - t1	
 	print("\nTime: ",t2)
 	return 0
