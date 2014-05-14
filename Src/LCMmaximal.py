@@ -91,21 +91,12 @@ class Grid(object):
 		
 
 class Disk(object):
-	def __init__(self,center, timestamp,members):
-		self.id = str(center.x)+"-"+str(center.y)
-		self.center = center
+	def __init__(self,id, timestamp,members):
+		self.id = id		
 		self.members = members
 		self.timestamp = int(timestamp)
-		self.valid = True
-		
-	def __str__(self):
-		a = (str(self.center.x) +" "+ str(self.center.y))
-		b = set()
-		for i in self.members:
-			b.add(str(i))
-		return "%s %s" % (a,b)
-
-
+				
+	
 def calculateDisks(p1, p2):
 	"""Calculate the center of the disk passing through two points"""
 	r2 = math.pow(epsilon/2,2)
@@ -150,7 +141,11 @@ def disksTimestamp(points, timestamp):
 	"""Receive points per timestamp and return center disks compare, 
 	nearest tree centers and disks per timestamp with yours members"""
 	dictPoint={}
-	disks = {}
+		
+	if os.path.exists('outputDisk.dat'):
+				os.system('rm outputDisk.dat')
+				
+	output = open('outputDisk.dat','w')
 	
 	for point in points[str(timestamp)]:
 		index = point.getIndex()
@@ -165,12 +160,9 @@ def disksTimestamp(points, timestamp):
 	grid = Grid(dictPoint)
 	centersDiskCompare=[]
 	
-	#pointsFrame = []
-	
 	for point in points[str(timestamp)]:
-		#if not point in pointsFrame:
 		pointsFrame = grid.getFrame(point)
-	
+		
 		if (pointsFrame == []):
 			continue	
 		
@@ -200,58 +192,52 @@ def disksTimestamp(points, timestamp):
 			
 			if len(members) < mu:
 				continue
-							
-			pKeyDisk = str(centerDisk.x)+"-"+str(centerDisk.y)
-			if timestamp in disks:
-				disks[timestamp][pKeyDisk] = Disk(centerDisk, timestamp, set(members))
-			else:
-				disks[timestamp] = {}
-				disks[timestamp][pKeyDisk] = Disk(centerDisk, timestamp, set(members))
-	
-	if not timestamp in disks:
-		return 0
-
-	disksTime = disks[timestamp]
-	return (disksTime)
-	
-def maximalDisksTimestamp(disksTime, timestamp, diskID):
-	"""This method return the maximal disks per timestamp"""
+			
+			output.write(str(members)+"\n")
+			
+	output.close()
+		
+def maximalDisksTimestamp(timestamp, diskID):
+	"""This method return the maximal disks per timestamp with LCM"""
 	maximalDisks = {}
 	maximalDisks[timestamp] = {}
 	
-	if os.path.exists('outputDisk.dat'):
-			os.system('rm outputDisk.dat')
-			
 	if os.path.exists('outputDisk.mfi'):
 			os.system('rm outputDisk.mfi')
 			
-	output = open('outputDisk.dat','w')		
-	
-	for disk in disksTime:
-		output.write(str((disksTime[disk].members)).replace("{","").replace("}","").replace(",","")+"\n")
-		
-	output.close()
-	
-	os.system("./fim_maximal outputDisk.dat " + str(mu) + " outputDisk.mfi > /dev/null")	
+	os.system("./fim_maximal outputDisk.dat " + str(1) + " outputDisk.mfi > /dev/null")	
 	
 	output1 = open('outputDisk.mfi','r')
 	lines = output1.readlines()
 	for line in lines:
 		lineSplit = line.split(' ')
-		array = list(map(int,lineSplit[:-1]))
-		array.sort()
-			
-	return (maximalDisks[timestamp], diskID)
+		try:
+			array = list(map(int,lineSplit[:-1]))
+		except ValueError:
+			lineSplit = line.split(' ')
+			array = []
+			for a in lineSplit:
+				if a == '':
+					a = 0
+				array.append(a)
+			array = list(map(int,array[:-1]))
+	
+		maximalDisks[timestamp][diskID] = Disk(diskID, timestamp, set(array))
+		diskID += 1	
+	
+	maximalDisks = maximalDisks[timestamp]
+					
+	return (maximalDisks, diskID)
 				
 def main():
 	global epsilon
 	global mu
 	global precision
 			
-	epsilon = 200
-	mu = 3
+	epsilon = 300 
+	mu = 9
 	precision = 0.001
-	filename = 'Oldenburg.csv'
+	filename = 'SJ50K55.csv'
 	
 	dataset = csv.reader(open('Datasets/'+filename, 'r'),delimiter='\t')
 	next(dataset)
@@ -266,14 +252,12 @@ def main():
 	diskID = 1
 	
 	for timestamp in timestamps:
-		disksTime = disksTimestamp(points, timestamp)
-		if disksTime == 0:
+		disksTimestamp(points, timestamp)
+		if os.path.getsize('outputDisk.dat') == 0:
 			continue
-		print(timestamp, len(disksTime))
-		maximalDisks, diskID = maximalDisksTimestamp(disksTime, timestamp, diskID)
-		input("HOLA")
-		
-					
+		maximalDisks, diskID = maximalDisksTimestamp(timestamp, diskID)
+		print("Maximal",len(maximalDisks))
+									
 	t2 = time.time() - t1	
 	print("\nTime: ",t2)
 	return 0
