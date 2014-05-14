@@ -35,8 +35,8 @@ nosetests.xml
 .project
 .pydevproject
 
-# Output
-output.*
+# OutputLCM
+output*.*
 
 # Temp
 *.*~
