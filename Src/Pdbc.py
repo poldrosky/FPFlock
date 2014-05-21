@@ -25,87 +25,87 @@
 import psycopg2
 
 class DBConnector():
-	def __init__(self):
-		dbname = 'trajectories'
-		user = 'omar'
-		password = '123'
-		host = 'localhost'
-		port = '5432'
-		try:
-			self.conn = psycopg2.connect("dbname='{0}' user='{1}' password='{2}' host='{3}' port='{4}'".format(dbname, user, password, host, port))
-			print("Connection OK")
-		except:
-			print("No connection")
-	
-			
-	def createTableFlock(self,table):
-		self.table = table
-		cur = self.conn.cursor()
-		create = """CREATE TABLE IF NOT EXISTS
-					{0} (fid Integer,
-					started integer,
-					ended integer,
-					members character varying); """.format(table)
-		
-		try:
-			cur.execute(create)
-			self.conn.commit()
-		except:
-			print("Error creating table")
-		
-	
-	def resetTable(self,table):
-		self.table = table
-		cur = self.conn.cursor()
-		truncate = """TRUNCATE TABLE {0};""".format(table)
-				
-		try:
-			cur.execute(truncate)
-			self.conn.commit()
-		except:
-			print("Error reset table")
-			
-	
-	def createTableTest(self):
-		self.table = 'test'
-		cur = self.conn.cursor()
-		create = """CREATE TABLE IF NOT EXISTS {0} 
-						(dataset character varying,
-						epsilon integer,
-						mu integer,
-						delta integer,
-						timetest real,
-						flocks integer,
-						tag character varying
-						) """.format(self.table)
-		
-		try:
-			cur.execute(create)
-			self.conn.commit()
-		except:
-			print("Error creating test table")
-						
-		
-	def insertTest(self, filename, epsilon, mu, delta, time, flocks, tag):
-		self.table = 'test'
-		cur = self.conn.cursor()
-		insert = """INSERT INTO {0} VALUES('{1}',{2},{3},{4},{5},{6},'{7}')""".format(self.table,
-												filename, epsilon, mu, delta, time, flocks, tag)
-												
-		try:
-			cur.execute(insert)
-			self.conn.commit()
-		except:
-			print("Error insert table test")
-		
-			
-	def copyToTable(self,table, stdin):
-		self.table = table
-		self.stdin = stdin
-		cur = self.conn.cursor()
-		try:
-			cur.copy_from(stdin, table)
-			self.conn.commit()
-			print("Copy OK")
-		except:
-			print("Copy Error")
+    def __init__(self):
+        dbname = 'trajectories'
+        user = 'omar'
+        password = '123'
+        host = 'localhost'
+        port = '5432'
+        try:
+            self.conn = psycopg2.connect("dbname='{0}' user='{1}' password='{2}' host='{3}' port='{4}'".format(dbname, user, password, host, port))
+            print("Connection OK")
+        except:
+            print("No connection")
+    
+            
+    def createTableFlock(self,table):
+        self.table = table
+        cur = self.conn.cursor()
+        create = """CREATE TABLE IF NOT EXISTS
+                    {0} (fid Integer,
+                    started integer,
+                    ended integer,
+                    members character varying); """.format(table)
+        
+        try:
+            cur.execute(create)
+            self.conn.commit()
+        except:
+            print("Error creating table")
+        
+    
+    def resetTable(self,table):
+        self.table = table
+        cur = self.conn.cursor()
+        truncate = """TRUNCATE TABLE {0};""".format(table)
+                
+        try:
+            cur.execute(truncate)
+            self.conn.commit()
+        except:
+            print("Error reset table")
+            
+    
+    def createTableTest(self):
+        self.table = 'test'
+        cur = self.conn.cursor()
+        create = """CREATE TABLE IF NOT EXISTS {0} 
+                        (dataset character varying,
+                        epsilon integer,
+                        mu integer,
+                        delta integer,
+                        timetest real,
+                        flocks integer,
+                        tag character varying
+                        ) """.format(self.table)
+        
+        try:
+            cur.execute(create)
+            self.conn.commit()
+        except:
+            print("Error creating test table")
+                        
+        
+    def insertTest(self, filename, epsilon, mu, delta, time, flocks, tag):
+        self.table = 'test'
+        cur = self.conn.cursor()
+        insert = """INSERT INTO {0} VALUES('{1}',{2},{3},{4},{5},{6},'{7}')""".format(self.table,
+                                                filename, epsilon, mu, delta, time, flocks, tag)
+                                                
+        try:
+            cur.execute(insert)
+            self.conn.commit()
+        except:
+            print("Error insert table test")
+        
+            
+    def copyToTable(self,table, stdin):
+        self.table = table
+        self.stdin = stdin
+        cur = self.conn.cursor()
+        try:
+            cur.copy_from(stdin, table)
+            self.conn.commit()
+            print("Copy OK")
+        except:
+            print("Copy Error")
