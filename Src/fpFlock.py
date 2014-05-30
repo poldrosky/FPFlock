@@ -37,7 +37,7 @@ class FPFlock(object):
         self.mu = mu
         self.delta = delta
 
-    def getTransactions(points, maximalDisks):
+    def getTransactions(maximalDisks):
         for maximal in maximalDisks:
             for member in maximalDisks[maximal].members:
                 if not member  in traj.keys():
@@ -125,7 +125,7 @@ class FPFlock(object):
             maximalDisks, diskID = LCMmaximal.maximalDisksTimestamp(timestamp, diskID)
             totalMaximalDisks.update(maximalDisks)
 
-            FPFlock.getTransactions(points, maximalDisks)
+            FPFlock.getTransactions(maximalDisks)
 
         for i in traj:
             if len(traj[i]) == 1:
@@ -160,7 +160,7 @@ class FPFlock(object):
 def main():
     #fp = FPFlock(200,3,3)
     #flockFinder('SJ2500T100t500f.csv')
-    #fp.flockFinder('Oldenburg.csv','fptest1')
+    #fp.flockFinder('Oldenburg.csv','fp1test1')
 
     fp = FPFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
     fp.flockFinder(str(sys.argv[4]),'fp1'+str(sys.argv[5]))
