@@ -37,7 +37,7 @@ class LCMFlock(object):
         self.mu = mu
         self.delta = delta
 
-    def getTransactions(points, maximalDisks):
+    def getTransactions(maximalDisks):
         for maximal in maximalDisks:
             for member in maximalDisks[maximal].members:
                 if not member  in traj.keys():
@@ -56,7 +56,6 @@ class LCMFlock(object):
             array.sort()
             if len(array) < delta:
                 continue
-            frecuency = int(lineSplit[-1].replace('(','').replace(')',''))
             members = totalMaximalDisks[int(str(array[0]))].members
             begin = totalMaximalDisks[int(str(array[0]))].timestamp
             end = begin
@@ -129,12 +128,12 @@ class LCMFlock(object):
             maximalDisks, diskID = Maximal.maximalDisksTimestamp(centersDiskCompare, treeCenters,disksTime, timestamp, diskID)
             totalMaximalDisks.update(maximalDisks)
             
-            LCMFlock.getTransactions(points, maximalDisks)
+            LCMFlock.getTransactions(maximalDisks)
         
         for i in traj:
             if len(traj[i]) == 1:
                 continue
-            output.write(str(traj[i]).replace(',','').replace('[','').replace(']','')+'\n')
+            output.write(str(traj[i])+'\n')
         
         output.close()
         
