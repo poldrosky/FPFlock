@@ -39,13 +39,21 @@ class FPFlockOnline(object):
         self.delta = delta
 
     def getTransactions(maximalDisks):
+        newKey = set()
+        oldKey = set()
         for maximal in maximalDisks:
             for member in maximalDisks[maximal].members:
                 if not member  in traj.keys():
                     traj[member]= []
                     traj[member].append(maximalDisks[maximal].id)
+                    newKey.add(member)
                 else:
                     traj[member].append(maximalDisks[maximal].id)
+                    oldKey.add(member)
+        keys = set(traj.keys())
+        keysToDelete = (keys.difference(oldKey).difference(newKey))
+        for key in keysToDelete:
+            del traj[key]
         return traj
 	
     def flocks(output1, totalMaximalDisks, keyFlock):
@@ -134,10 +142,10 @@ class FPFlockOnline(object):
                 
             output.close()
             
-                       
+            if os.path.getsize('output.dat') == 0:
+                continue
             os.system("./fim_closed output.dat " + str(LCMmaximal.mu) + " output.mfi > /dev/null")
                           
-            
             if os.path.exists('output.mfi'):
                 output1 = open('output.mfi','r')				
 		
