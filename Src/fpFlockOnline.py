@@ -90,13 +90,13 @@ class FPFlockOnline(object):
                 stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, begin, end, b))
                 keyFlock += 1
                 
-        return stdin
+        return stdin, keyFlock
             
     def flockFinder(self,filename,tag):
         global traj
         global stdin
         global delta
-        
+        global keyFlock
                
         LCMmaximal.epsilon = self.epsilon
         LCMmaximal.mu = self.mu
@@ -149,9 +149,8 @@ class FPFlockOnline(object):
             if os.path.exists('output.mfi'):
                 output1 = open('output.mfi','r')				
 		
-            keyFlock = 1
-             
-            stdin = FPFlockOnline.flocks(output1, totalMaximalDisks, keyFlock)
+                         
+            stdin, keyFlock  = FPFlockOnline.flocks(output1, totalMaximalDisks, keyFlock)
             
                    
         table = ('flocksFPOnline')
@@ -169,16 +168,14 @@ class FPFlockOnline(object):
         db.createTableTest()
         db.insertTest(filename,self.epsilon,self.mu, delta, t2, flocks, tag)
 		
-        
-    
-        		
+  		
 def main():
-    fp = FPFlockOnline(200,3,3)
+    #fp = FPFlockOnline(200,3,3)
     #flockFinder('SJ2500T100t500f.csv')
-    fp.flockFinder('Oldenburg.csv','fp2test1')
+    #fp.flockFinder('Oldenburg.csv','fp2test')
 
-    #fp = FPFlockOnline(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-    #fp.flockFinder(str(sys.argv[4]),'fp2'+str(sys.argv[5]))
+    fp = FPFlockOnline(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+    fp.flockFinder(str(sys.argv[4]),'fp2'+str(sys.argv[5]))
 	
 if __name__ == '__main__':
     main()

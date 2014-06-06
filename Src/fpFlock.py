@@ -139,7 +139,6 @@ class FPFlock(object):
         if os.path.exists('output.mfi'):
             output1 = open('output.mfi','r')				
 		
-            keyFlock = 1
             stdin = FPFlock.flocks(output1, totalMaximalDisks, keyFlock)
 				
         table = ('flocksFP')
