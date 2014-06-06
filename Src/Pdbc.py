@@ -46,7 +46,21 @@ class DBConnector():
                     started integer,
                     ended integer,
                     members character varying); """.format(table)
-        
+        try:
+            cur.execute(create)
+            self.conn.commit()
+        except:
+            print("Error creating table")
+            
+    def createTableFlockLines(self,table):
+        self.table = table
+        cur = self.conn.cursor()
+        create = """CREATE TABLE IF NOT EXISTS
+                    {0} (fid Integer,
+                    started integer,
+                    ended integer,
+                    members character varying,
+                    line character varying); """.format(table)
         try:
             cur.execute(create)
             self.conn.commit()
@@ -109,3 +123,24 @@ class DBConnector():
             print("Copy OK")
         except:
             print("Copy Error")
+            
+    def getTable(self, table):
+        self.table = table
+        cur = self.conn.cursor()
+        try:
+            cur.execute("SELECT * FROM {0}".format(table))
+            rows = cur.fetchall()
+            return rows
+        except:
+            print("TABLE ERROR")
+            
+    def getData(self, sql):
+        self.sql = sql
+        cur = self.conn.cursor()
+        try:
+            cur.execute(sql)
+            rows = cur.fetchone()
+            return rows
+        except:
+            print("SQL ERROR")
+        
