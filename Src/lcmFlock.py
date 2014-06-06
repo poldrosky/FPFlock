@@ -142,7 +142,6 @@ class LCMFlock(object):
         if os.path.exists('output.mfi'):
             output1 = open('output.mfi','r')                
         
-            keyFlock = 1
             stdin = LCMFlock.flocks(output1, totalMaximalDisks, keyFlock)
                 
         table = ('flocksLCM')

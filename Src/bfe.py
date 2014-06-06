@@ -135,7 +135,7 @@ class BFEFlock(object):
 def main():
     #bfe = BFEFlock(200,3,3)
     #bfe.flockFinder('SJ2500T100t500f.csv')
-    #bfe.flockFinder('Oldenburg.csv','test1')
+    #bfe.flockFinder('Oldenburg.csv','bfetest')
     
     bfe = BFEFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
     bfe.flockFinder(str(sys.argv[4]),'bfe'+str(sys.argv[5]))
