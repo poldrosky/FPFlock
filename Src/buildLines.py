@@ -28,7 +28,7 @@ import io
 
 db = Pdbc.DBConnector()
 
-tableFlocks = "flocksfponline"
+tableFlocks = "flocksfpOnline"
 tableData = "oldenburg"
 
 flocks = db.getTable(tableFlocks)
@@ -38,24 +38,24 @@ stdin = []
 for flock in flocks:
     line = ""
     members = flock[3].replace('[','').replace(']','').split(',')
-    for member in members:
-        a, b = int(flock[1]),int(flock[2])
+    a, b = int(flock[1]),int(flock[2])
+    while(a<=b):
         x = y = 0
-        while(a<=b):
+        for member in members:
             pos = db.getData("SELECT * from {0} WHERE oid = '{1}' and otime = '{2}'".format(tableData, member, a))
             x = x + pos[2]
             y = y + pos[3]
-            a+=1
         centroidX = x / len(members)
         centroidY = y / len(members)
-        if member != members[-1]:
+        if a != b:
             centroid = str(centroidX) +" "+ str(centroidY) + ","
         else:
             centroid = str(centroidX) +" "+ str(centroidY)
         line +=  centroid
+        a+=1
     line = "LINESTRING ("+ line + ")"
     stdin.append('{0}\t{1}\t{2}\t{3}\t{4}'.format(flock[0],flock[1], flock[2], flock[3], line))
-    
+        
 table = ('flocklines')
 stdin = '\n'.join(stdin)
 
