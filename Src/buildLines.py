@@ -28,7 +28,7 @@ import io
 
 db = Pdbc.DBConnector()
 
-tableFlocks = "flocksfpOnline"
+tableFlocks = "flocksbfe"
 tableData = "oldenburg"
 
 flocks = db.getTable(tableFlocks)
