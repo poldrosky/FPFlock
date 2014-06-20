@@ -80,7 +80,7 @@ class FPFlock(object):
                 b.sort()
                 stdin.append('{0}\t{1}\t{2}\t{3}'.format(keyFlock, begin, end, b))
                 keyFlock += 1
-	
+        
         return stdin
 			
     def flockFinder(self,filename,tag):
@@ -120,17 +120,19 @@ class FPFlock(object):
 
         for timestamp in timestamps:
             LCMmaximal.disksTimestamp(points, timestamp)
-            if os.path.getsize('outputDisk.dat') == 0:
+            if not os.path.exists('outputDisk.dat'):
                 continue
             maximalDisks, diskID = LCMmaximal.maximalDisksTimestamp(timestamp, diskID)
             totalMaximalDisks.update(maximalDisks)
 
             FPFlock.getTransactions(maximalDisks)
-
+        
+        st = ''
         for i in traj:
-            if len(traj[i]) == 1:
+            if len(traj[i]) < delta:
                 continue
-            output.write(str(traj[i])+'\n')
+            st += (str(traj[i])+'\n')
+        output.write(st)
 		
         output.close()
 		
@@ -157,12 +159,12 @@ class FPFlock(object):
         db.insertTest(filename,self.epsilon,self.mu, delta, t2, flocks, tag)
 		
 def main():
-    #fp = FPFlock(200,3,3)
+    fp = FPFlock(500,3,3)
     #flockFinder('SJ2500T100t500f.csv')
-    #fp.flockFinder('Oldenburg.csv','fp1test1')
+    fp.flockFinder('Oldenburg.csv','fp1test1')
 
-    fp = FPFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-    fp.flockFinder(str(sys.argv[4]),'fp1'+str(sys.argv[5]))
+    #fp = FPFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+    #fp.flockFinder(str(sys.argv[4]),'fp1'+str(sys.argv[5]))
 	
 if __name__ == '__main__':
     main()
