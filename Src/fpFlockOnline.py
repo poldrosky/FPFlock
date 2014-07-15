@@ -171,12 +171,12 @@ class FPFlockOnline(object):
 		
   		
 def main():
-    fp = FPFlockOnline(500,3,3)
+    #fp = FPFlockOnline(200,3,3)
     #flockFinder('SJ2500T100t500f.csv')
-    fp.flockFinder('Oldenburg.csv','fp2test')
+    #fp.flockFinder('Oldenburg.csv','fp2test')
 
-    #fp = FPFlockOnline(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-    #fp.flockFinder(str(sys.argv[4]),'fp2'+str(sys.argv[5]))
+    fp = FPFlockOnline(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+    fp.flockFinder(str(sys.argv[4]),'fp2'+str(sys.argv[5]))
 	
 if __name__ == '__main__':
     main()

@@ -159,12 +159,12 @@ class FPFlock(object):
         db.insertTest(filename,self.epsilon,self.mu, delta, t2, flocks, tag)
 		
 def main():
-    fp = FPFlock(500,3,3)
+    #fp = FPFlock(500,3,3)
     #flockFinder('SJ2500T100t500f.csv')
-    fp.flockFinder('Oldenburg.csv','fp1test1')
+    #fp.flockFinder('Oldenburg.csv','fp1test1')
 
-    #fp = FPFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-    #fp.flockFinder(str(sys.argv[4]),'fp1'+str(sys.argv[5]))
+    fp = FPFlock(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+    fp.flockFinder(str(sys.argv[4]),'fp1'+str(sys.argv[5]))
 	
 if __name__ == '__main__':
     main()
