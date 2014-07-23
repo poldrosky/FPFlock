@@ -33,7 +33,7 @@ graphicFlock <- function(filename){
   lines(epsilon3, fp2flock, type="b",
         pch=19, lty=2, col="darkmagenta")
 
-  legend("topleft", inset=.05, title="Algoritmo", c("LCMFlock","BFE", "FPFlock", "FPFLockOnline"),
+  legend("topleft", inset=.05, title="Algoritmo", c("LCMFlock","BFE", "FPFlockOffline", "FPFLockOnline"),
     lty=c(3, 2), pch=c(15, 17,18,19), col=c("red", "blue","cyan", "darkmagenta"))
   dev.off()
 }
